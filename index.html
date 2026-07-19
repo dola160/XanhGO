@@ -315,6 +315,11 @@
                                     <span class="text-xs font-bold text-slate-400 tracking-widest uppercase">HOÁ ĐƠN ĐẶT XE</span>
                                 </div>
                                 <h3 class="text-xl font-extrabold text-slate-900 tracking-tight" id="receipt-id">FG_445889</h3>
+                                <!-- Bổ sung dòng Loại xe ngay dưới ID Hóa đơn -->
+                                <p class="text-[11px] font-bold text-amber-600 mt-0.5 flex items-center gap-1">
+                                    <i data-lucide="info" class="w-3.5 h-3.5"></i>
+                                    Loại xe: <span id="receipt-vehicle-type" class="font-extrabold">Ô tô 7 chỗ (Rộng rãi tiện lợi)</span>
+                                </p>
                                 <p class="text-[11px] text-slate-450 text-slate-400 mt-1 font-semibold" id="receipt-date">Ngày tạo: 19/7/2026 21:34</p>
                             </div>
                             <div class="text-right flex flex-col items-end gap-1.5">
@@ -378,7 +383,7 @@
                             </div>
                         </div>
 
-                        <!-- Solid Grand Total Box (Identical style to reference) -->
+                        <!-- Solid Grand Total Box -->
                         <div class="bg-[#0e1626] text-white p-5 rounded-[1.5rem] flex items-center justify-between gap-4 mt-1 shadow-inner">
                             <div class="flex flex-col gap-0.5">
                                 <span class="text-[9px] font-extrabold tracking-widest text-slate-400 uppercase">TỔNG TIỀN CUỐI CÙNG</span>
@@ -436,44 +441,36 @@
         let destMarker;
         let routeLine;
         
-        let startLatLng = [10.518, 105.125]; // An Giang default coordinate
-        let destLatLng = [11.940, 108.438]; // Da Lat default coordinate
+        let startLatLng = [10.518, 105.125]; 
+        let destLatLng = [11.940, 108.438]; 
         
-        let routeDistanceKm = 570.5; // Starts with pre-set matching the exact picture specs
-        let routeDurationMins = 580; // Estimated driving time
+        let routeDistanceKm = 570.5; 
+        let routeDurationMins = 580; 
         
-        let currentVehicle = 'car7'; // Matches 7-seat screenshot
-        let tripType = 'roundtrip'; // Matches khứ hồi screenshot
-        let discountEnabled = true; // Enabled khứ hồi giảm giá
+        let currentVehicle = 'car7'; 
+        let tripType = 'roundtrip'; 
+        let discountEnabled = true; 
 
-        // Pricing Rules
         const tariffs = {
-            motorbike: { open: 10000, mid: 3500, far: 3000, wait: 20000, name: "Xe máy" },
-            car4: { open: 20000, mid: 8000, far: 7000, wait: 40000, name: "Ô tô 4 chỗ" },
-            car7: { open: 25000, mid: 10000, far: 9000, wait: 50000, name: "Ô tô 7 chỗ" },
-            car16: { open: 40000, mid: 15000, far: 13000, wait: 70000, name: "Ô tô 16 chỗ" }
+            motorbike: { open: 10000, mid: 3500, far: 3000, wait: 20000, name: "Xe máy", desc: "2 bánh siêu tốc" },
+            car4: { open: 20000, mid: 8000, far: 7000, wait: 40000, name: "Ô tô 4 chỗ", desc: "Gia đình nhỏ" },
+            car7: { open: 25000, mid: 10000, far: 9000, wait: 50000, name: "Ô tô 7 chỗ", desc: "Rộng rãi tiện lợi" },
+            car16: { open: 40000, mid: 15000, far: 13000, wait: 70000, name: "Ô tô 16 chỗ", desc: "Du lịch, sự kiện" }
         };
 
         window.onload = function() {
             lucide.createIcons();
             initMap();
             
-            // Set initial beautiful matching labels to mirror your exact image upload
             document.getElementById('start-input').value = "Đường tỉnh 964, Xẻo Ngát B, Xã Tân Thạnh, Tỉnh An Giang, Việt Nam";
             document.getElementById('dest-input').value = "Đà Lạt, Tỉnh Lâm Đồng, 02633, Việt Nam";
+            document.getElementById('contract-discount').checked = true; 
             
-            // Sync form configurations with the initial values mirroring the screenshot
-            document.getElementById('contract-discount').checked = true; // To trigger 25% total discount like the uploaded image
-            
-            // Render vehicle layout
             selectVehicle('car7');
             setTripType('roundtrip');
             
-            // Force drawing markers initially
             updateStartLocation(startLatLng[0], startLatLng[1], "Đường tỉnh 964, Xẻo Ngát B, Xã Tân Thạnh, Tỉnh An Giang, Việt Nam");
             updateDestLocation(destLatLng[0], destLatLng[1], "Đà Lạt, Tỉnh Lâm Đồng, 02633, Việt Nam");
-            
-            // Trigger GPS Location attempt
             tryGeolocation();
         };
 
@@ -494,7 +491,6 @@
                     (position) => {
                         const lat = position.coords.latitude;
                         const lng = position.coords.longitude;
-                        // Reverse search to locate the real current location
                         fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}&accept-language=vi`)
                             .then(res => res.json())
                             .then(data => {
@@ -576,7 +572,6 @@
                 });
         }
 
-        // Suggestions Search Logic
         let searchTimeout;
         function debouncedSearch(type) {
             clearTimeout(searchTimeout);
@@ -648,7 +643,6 @@
             calculateTotal();
         }
 
-        // Fetch OSRM actual path on earth
         function triggerRouting() {
             if (!startLatLng || !destLatLng) return;
 
@@ -671,7 +665,6 @@
                             document.getElementById('route-duration').innerText = `${routeDurationMins} phút`;
                         }
 
-                        // Determine path type
                         const terrain = document.getElementById('route-terrain');
                         if (routeDistanceKm > 50) {
                             terrain.innerText = "Tuyến xa - Quốc lộ/Cao tốc";
@@ -693,7 +686,6 @@
                     }
                 })
                 .catch(() => {
-                    // Straight line fallback in case of internet latency / offline
                     const d = map.distance(startLatLng, destLatLng) / 1000;
                     routeDistanceKm = parseFloat(d.toFixed(1));
                     routeDurationMins = Math.ceil(routeDistanceKm * 1.4);
@@ -720,6 +712,11 @@
                 targetCard.className = "vehicle-card flex flex-col items-center justify-between p-4 rounded-xl border-2 border-amber-500 bg-amber-50/25 hover:border-amber-600 transition-all text-center";
                 targetCard.querySelector('div').className = "p-2.5 bg-amber-500 text-white rounded-lg mb-2 shadow-sm shadow-amber-500/20";
             }
+            
+            // Cập nhật tên loại xe lên giao diện hóa đơn trực quan
+            const vehicleInfo = tariffs[key];
+            document.getElementById('receipt-vehicle-type').innerText = `${vehicleInfo.name} (${vehicleInfo.desc})`;
+            
             calculateTotal();
         }
 
@@ -764,34 +761,27 @@
             calculateTotal();
         }
 
-        // Main Calculation Engine
         function calculateTotal() {
             const rule = tariffs[currentVehicle];
             const dist = routeDistanceKm;
             
-            // Step A: Base cost
             let baseOpenPrice = 0;
             let kmNextPrice = 0;
             
             if (dist > 0) {
-                // First 2 km: Open gate price
                 baseOpenPrice = rule.open;
-                
                 if (dist > 2) {
                     if (dist <= 20) {
                         kmNextPrice = (dist - 2) * rule.mid;
                     } else {
-                        // 18 km at medium rate, rest at distant rate
                         kmNextPrice = (18 * rule.mid) + (dist - 20) * rule.far;
                     }
                 }
             }
 
-            // Step B: Wait hours
             const waitHrs = parseFloat(document.getElementById('wait-hours').value) || 0;
             const waitPrice = waitHrs * rule.wait;
 
-            // Step C: Roundtrip Multipliers
             let roundtripFactor = 1;
             let subtotalUnit = baseOpenPrice + kmNextPrice + waitPrice;
             let finalGross = subtotalUnit;
@@ -801,7 +791,6 @@
                 finalGross = subtotalUnit * 2;
             }
 
-            // Step D: Calculate Discounts
             let discountPercent = 0;
             if (tripType === 'roundtrip' && discountEnabled) {
                 if (dist < 20) discountPercent = 10;
@@ -809,17 +798,14 @@
                 else discountPercent = 20;
             }
 
-            // Special loyalty add-on
             const contractActive = document.getElementById('contract-discount').checked;
             if (contractActive) {
-                // High privilege discount overriding standard rate up to 25%
                 discountPercent = Math.max(discountPercent, 25);
             }
 
             const discountAmount = Math.round((finalGross * discountPercent) / 100);
             const finalPayable = finalGross - discountAmount;
 
-            // Push to DOM Invoice Frame
             document.getElementById('price-step-open').innerText = formatVnd(dist > 0 ? baseOpenPrice : 0);
             document.getElementById('price-step-distance').innerText = formatVnd(kmNextPrice);
             document.getElementById('price-step-wait').innerText = formatVnd(waitPrice);
@@ -836,7 +822,6 @@
 
             document.getElementById('price-step-total').innerText = formatVnd(finalPayable);
             
-            // Sub description status
             const desc = document.getElementById('receipt-price-summary-desc');
             if (tripType === 'roundtrip') {
                 desc.innerText = discountEnabled ? "Giá đã giảm ưu đãi khứ hồi" : "Cước khứ hồi không ưu đãi";
@@ -849,7 +834,6 @@
             return new Intl.NumberFormat('vi-VN').format(val) + " đ";
         }
 
-        // Toast implementation
         function showToast(msg, type = "info") {
             const toast = document.getElementById('toast-banner');
             const content = document.getElementById('toast-content');
@@ -887,20 +871,13 @@
             document.getElementById('toast-banner').classList.add('hidden');
         }
 
-        // ==========================================
-        // ADVANCED EXPORT SYSTEMS (REAL 100%)
-        // ==========================================
-
-        // 1. EXPORT TO PNG IMAGE (Using HTML2Canvas)
         function exportAsImage() {
             showToast("Đang kết xuất hình ảnh hóa đơn...", "info");
             const target = document.getElementById('invoice-card');
-            
-            // Temporarily optimize target padding for pristine export
             target.style.transform = "scale(1)";
             
             html2canvas(target, {
-                scale: 3, // Premium 3x Ultra-HD Resolution
+                scale: 3, 
                 useCORS: true,
                 allowTaint: true,
                 backgroundColor: "#ffffff",
@@ -917,7 +894,6 @@
             });
         }
 
-        // 2. EXPORT TO PDF (HTML2Canvas + JsPDF lossless vector packing)
         function exportAsPDF() {
             showToast("Đang đóng gói tài liệu PDF...", "info");
             const target = document.getElementById('invoice-card');
@@ -930,16 +906,13 @@
                 const imgData = canvas.toDataURL('image/png');
                 const { jsPDF } = window.jspdf;
                 
-                // Formulate optimized PDF page structure
                 const pdf = new jsPDF('p', 'mm', 'a4');
                 const pdfWidth = pdf.internal.pageSize.getWidth();
-                const pdfHeight = pdf.internal.pageSize.getHeight();
                 
-                // Maintain elegant spacing & fit
-                const contentWidth = 140; // centered elegant document size
+                const contentWidth = 140; 
                 const contentHeight = (canvas.height * contentWidth) / canvas.width;
                 const posX = (pdfWidth - contentWidth) / 2;
-                const posY = 15; // 15mm top margin
+                const posY = 15; 
 
                 pdf.addImage(imgData, 'PNG', posX, posY, contentWidth, contentHeight);
                 pdf.save(`${document.getElementById('receipt-id').innerText}_HOADON.pdf`);
@@ -950,12 +923,10 @@
             });
         }
 
-        // 3. QUICK PRINT (Native dialogue trigger)
         function quickPrint() {
             window.print();
         }
 
-        // 4. DOCUMENT EXPORT (DOCX)
         function exportDocx() {
             const bookingId = document.getElementById('receipt-id').innerText;
             const start = document.getElementById('receipt-start').innerText;
@@ -976,7 +947,7 @@ Quãng đường thực tế: ${routeDistanceKm} km
 ĐIỂM ĐÓN KHÁCH (ĐIỂM ĐI):
 ${start}
 
-ĐIỂM TRẢ KHÁCH (ĐIỂM ĐẾN):
+ĐIỂM TRẢ KHÁCH (ĐIỂM ĐIỂM ĐẾN):
 ${dest}
 -----------------------------------------
 
@@ -987,7 +958,6 @@ CHI TIẾT THANH TOÁN:
 - Chiết khấu ưu đãi áp dụng: ${document.getElementById('price-step-discount').innerText || '0 đ'}
 
 TỔNG CỘNG THANH TOÁN: ${total}
-(Giá đã bao gồm tất cả các thuế phí liên quan)
 
 Trạng thái: Đã xác thực lộ trình trực tuyến.
 Cám ơn quý khách đã tin chọn FastGo!
@@ -1004,7 +974,6 @@ Cám ơn quý khách đã tin chọn FastGo!
             showToast("Đã tải xuống hợp đồng Word DOCX!", "success");
         }
 
-        // 5. SHEET EXPORT (CSV)
         function exportCSV() {
             const bookingId = document.getElementById('receipt-id').innerText;
             const start = document.getElementById('receipt-start').innerText;
