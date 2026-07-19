@@ -314,13 +314,23 @@
                                     <span class="w-2.5 h-2.5 bg-amber-500 rounded-full"></span>
                                     <span class="text-xs font-bold text-slate-400 tracking-widest uppercase">HOÁ ĐƠN ĐẶT XE</span>
                                 </div>
-                                <h3 class="text-xl font-extrabold text-slate-900 tracking-tight" id="receipt-id">FG_445889</h3>
-                                <!-- Bổ sung dòng Loại xe ngay dưới ID Hóa đơn -->
-                                <p class="text-[11px] font-bold text-amber-600 mt-0.5 flex items-center gap-1">
+                                <div class="flex items-center gap-2">
+                                    <h3 class="text-xl font-extrabold text-slate-900 tracking-tight" id="receipt-id">FG_445889</h3>
+                                    <!-- Nút đổi mã hóa đơn nhanh -->
+                                    <button onclick="regenerateInvoiceId()" title="Tạo mã hóa đơn ngẫu nhiên mới" class="p-1 hover:bg-slate-100 text-slate-400 hover:text-amber-500 rounded-lg transition no-print">
+                                        <i data-lucide="refresh-cw" class="w-4 h-4"></i>
+                                    </button>
+                                </div>
+                                <!-- Loại xe -->
+                                <p class="text-[11px] font-bold text-amber-600 mt-1 flex items-center gap-1">
                                     <i data-lucide="info" class="w-3.5 h-3.5"></i>
                                     Loại xe: <span id="receipt-vehicle-type" class="font-extrabold">Ô tô 7 chỗ (Rộng rãi tiện lợi)</span>
                                 </p>
-                                <p class="text-[11px] text-slate-450 text-slate-400 mt-1 font-semibold" id="receipt-date">Ngày tạo: 19/7/2026 21:34</p>
+                                <!-- Ngày tạo động -->
+                                <p class="text-[11px] text-slate-450 text-slate-400 mt-1 font-semibold flex items-center gap-1" id="receipt-date">
+                                    <i data-lucide="calendar" class="w-3.5 h-3.5 text-slate-400"></i>
+                                    Ngày tạo: --/--/---- --:--
+                                </p>
                             </div>
                             <div class="text-right flex flex-col items-end gap-1.5">
                                 <span class="text-[10px] px-2.5 py-1 rounded bg-amber-50 text-amber-700 font-extrabold uppercase tracking-wide">Thời gian thật 100%</span>
@@ -462,10 +472,16 @@
             lucide.createIcons();
             initMap();
             
+            // Thiết lập các giá trị ban đầu trùng khớp hoàn toàn với ảnh của bạn
             document.getElementById('start-input').value = "Đường tỉnh 964, Xẻo Ngát B, Xã Tân Thạnh, Tỉnh An Giang, Việt Nam";
             document.getElementById('dest-input').value = "Đà Lạt, Tỉnh Lâm Đồng, 02633, Việt Nam";
             document.getElementById('contract-discount').checked = true; 
             
+            // Tạo các thông tin Động thực tế ngay khi tải trang
+            updateDateTime();
+            regenerateInvoiceId(false); // false để không hiện thông báo khi mới tải trang lần đầu
+            
+            // Khởi tạo các trạng thái giao diện đặt trước
             selectVehicle('car7');
             setTripType('roundtrip');
             
@@ -473,6 +489,33 @@
             updateDestLocation(destLatLng[0], destLatLng[1], "Đà Lạt, Tỉnh Lâm Đồng, 02633, Việt Nam");
             tryGeolocation();
         };
+
+        // Hàm cập nhật THỜI GIAN THỰC TẾ của thiết bị vào hóa đơn
+        function updateDateTime() {
+            const now = new Date();
+            const dateStr = now.getDate() + '/' + (now.getMonth() + 1) + '/' + now.getFullYear();
+            const timeStr = now.toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' });
+            
+            document.getElementById('receipt-date').innerHTML = `
+                <i data-lucide="calendar" class="w-3.5 h-3.5 text-slate-400"></i>
+                Ngày tạo: ${dateStr} ${timeStr}
+            `;
+            // Cập nhật lại biểu tượng Lucide mới được thêm vào cây DOM
+            lucide.createIcons();
+        }
+
+        // Hàm sinh ngẫu nhiên mã hóa đơn (Ví dụ: FG_445889 hoặc một dãy 6 số ngẫu nhiên mới)
+        function regenerateInvoiceId(notify = true) {
+            const randomCode = Math.floor(100000 + Math.random() * 900000);
+            document.getElementById('receipt-id').innerText = `FG_${randomCode}`;
+            
+            // Đồng thời cập nhật luôn thời gian hiện tại lúc tạo hóa đơn
+            updateDateTime();
+            
+            if (notify) {
+                showToast("Đã cập nhật mã hóa đơn mới và thời gian thực hiện tại!", "success");
+            }
+        }
 
         function initMap() {
             map = L.map('map', {
@@ -713,7 +756,6 @@
                 targetCard.querySelector('div').className = "p-2.5 bg-amber-500 text-white rounded-lg mb-2 shadow-sm shadow-amber-500/20";
             }
             
-            // Cập nhật tên loại xe lên giao diện hóa đơn trực quan
             const vehicleInfo = tariffs[key];
             document.getElementById('receipt-vehicle-type').innerText = `${vehicleInfo.name} (${vehicleInfo.desc})`;
             
