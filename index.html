@@ -1,914 +1,895 @@
 <!DOCTYPE html>
 <html lang="vi">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>Ứng Dụng Đặt Xe Chuyên Nghiệp</title>
-  
-  <!-- PWA Web App Manifest (Inline Configuration via Data URI / Blob) -->
-  <link rel="manifest" id="manifest-placeholder">
-  <meta name="theme-color" content="#2563eb">
-  <meta name="apple-mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>PhuongSM — Tính cước & Đặt xe</title>
+<meta name="theme-color" content="#0F1B2E">
+<link rel="manifest" href="manifest.json">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
+<style>
+:root{
+  --bg:#0B1524;
+  --bg2:#0F1E33;
+  --card:#152741;
+  --card2:#1C314F;
+  --line:#28405F;
+  --ink:#F2F5F9;
+  --sub:#93A3BC;
+  --gold:#E8B94D;
+  --gold-d:#C79A32;
+  --green:#3ED8A0;
+  --red:#F2685B;
+  --radius:16px;
+  --shadow:0 20px 50px -20px rgba(0,0,0,.6);
+}
+*{box-sizing:border-box;}
+html,body{margin:0;padding:0;}
+body{
+  background:
+    radial-gradient(1200px 600px at 15% -10%, #16294a 0%, transparent 60%),
+    radial-gradient(1000px 500px at 100% 0%, #122038 0%, transparent 55%),
+    var(--bg);
+  color:var(--ink);
+  font-family:'Inter',system-ui,sans-serif;
+  min-height:100vh;
+  padding-bottom:60px;
+}
+.mono{font-family:'JetBrains Mono',monospace;}
+.display{font-family:'Space Grotesk',sans-serif;}
+a{color:inherit;}
+button{font-family:inherit;cursor:pointer;}
+.wrap{max-width:1100px;margin:0 auto;padding:0 20px;}
 
-  <!-- Tailwind CSS CDN -->
-  <script src="https://cdn.tailwindcss.com"></script>
-  
-  <!-- Leaflet CSS & JS for Interactive Real Maps -->
-  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
-  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+/* ---------- HEADER ---------- */
+header.top{
+  position:sticky;top:0;z-index:50;
+  background:rgba(11,21,36,.86);backdrop-filter:blur(14px);
+  border-bottom:1px solid var(--line);
+}
+.topbar{display:flex;align-items:center;justify-content:space-between;padding:14px 20px;max-width:1100px;margin:0 auto;}
+.brand{display:flex;align-items:center;gap:10px;}
+.brand .mark{
+  width:38px;height:38px;border-radius:10px;
+  background:linear-gradient(135deg,var(--gold),#F3D385);
+  display:flex;align-items:center;justify-content:center;
+  font-weight:700;color:#1A1300;font-family:'Space Grotesk',sans-serif;
+  box-shadow:0 6px 18px -4px rgba(232,185,77,.5);
+}
+.brand .name{font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:19px;letter-spacing:.2px;}
+.brand .name span{color:var(--gold);}
+.top-actions{display:flex;align-items:center;gap:8px;}
+.pill{
+  display:flex;align-items:center;gap:6px;
+  background:var(--card2);border:1px solid var(--line);
+  padding:7px 12px;border-radius:999px;font-size:13px;color:var(--sub);
+}
+.pill b{color:var(--ink);font-family:'JetBrains Mono',monospace;font-weight:700;}
+.icon-btn{
+  width:38px;height:38px;border-radius:10px;background:var(--card2);
+  border:1px solid var(--line);display:flex;align-items:center;justify-content:center;
+  color:var(--ink);transition:.15s;
+}
+.icon-btn:hover{border-color:var(--gold);color:var(--gold);}
+.icon-btn.active{background:var(--gold);color:#1A1300;border-color:var(--gold);}
 
-  <!-- Lucide Icons -->
-  <script src="https://unpkg.com/lucide@latest"></script>
+/* ---------- HERO ---------- */
+.hero{padding:38px 0 8px;}
+.eyebrow{
+  display:inline-flex;align-items:center;gap:8px;
+  color:var(--gold);font-size:12.5px;letter-spacing:1.6px;text-transform:uppercase;
+  font-weight:600;margin-bottom:10px;
+}
+.eyebrow::before{content:"";width:16px;height:1px;background:var(--gold);}
+h1.title{font-family:'Space Grotesk',sans-serif;font-size:clamp(28px,4vw,42px);font-weight:700;margin:0 0 8px;line-height:1.1;}
+.subtitle{color:var(--sub);font-size:15.5px;max-width:560px;margin:0 0 26px;}
 
-  <!-- Export Libraries: html2canvas, jspdf, docx, xlsx -->
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-  <script src="https://unpkg.com/docx@8.2.2/build/index.umd.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+/* ---------- GRID LAYOUT ---------- */
+.layout{display:grid;grid-template-columns:1.15fr .85fr;gap:22px;align-items:start;}
+@media(max-width:880px){.layout{grid-template-columns:1fr;}}
 
-  <style>
-    /* Custom Scrollbar */
-    ::-webkit-scrollbar { width: 6px; height: 6px; }
-    ::-webkit-scrollbar-track { background: #f1f1f1; }
-    ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
-    ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
-    
-    #map { height: 100%; min-height: 350px; width: 100%; z-index: 1; }
-    
-    /* Security watermark style for invoice */
-    .watermark-bg {
-      background-image: repeating-linear-gradient(45deg, rgba(37, 99, 235, 0.03) 0, rgba(37, 99, 235, 0.03) 100px, transparent 0, transparent 200px);
-    }
-  </style>
+.card{
+  background:linear-gradient(180deg,var(--card),var(--bg2));
+  border:1px solid var(--line);border-radius:var(--radius);
+  padding:22px;box-shadow:var(--shadow);
+}
+.card h2{font-family:'Space Grotesk',sans-serif;font-size:16px;margin:0 0 16px;display:flex;align-items:center;gap:8px;}
+.card h2 .n{color:var(--gold);}
+
+/* ---------- FORM ---------- */
+.field{margin-bottom:14px;}
+.field label{display:block;font-size:12.5px;color:var(--sub);margin-bottom:6px;font-weight:500;}
+.input-row{display:flex;gap:8px;}
+input[type=text],input[type=number]{
+  width:100%;background:#0E1B30;border:1px solid var(--line);color:var(--ink);
+  padding:11px 13px;border-radius:10px;font-size:14.5px;outline:none;transition:.15s;
+}
+input[type=text]:focus,input[type=number]:focus{border-color:var(--gold);}
+.btn-ghost{
+  background:var(--card2);border:1px solid var(--line);color:var(--ink);
+  padding:0 14px;border-radius:10px;font-size:13px;white-space:nowrap;display:flex;align-items:center;gap:6px;
+}
+.btn-ghost:hover{border-color:var(--gold);color:var(--gold);}
+
+#map{height:220px;border-radius:12px;margin-top:10px;border:1px solid var(--line);overflow:hidden;}
+
+.seg{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;}
+.seg button{
+  background:#0E1B30;border:1px solid var(--line);border-radius:12px;
+  padding:12px 6px;text-align:center;color:var(--sub);font-size:12.5px;font-weight:500;
+  display:flex;flex-direction:column;align-items:center;gap:6px;transition:.15s;
+}
+.seg button svg{width:20px;height:20px;}
+.seg button.active{border-color:var(--gold);background:rgba(232,185,77,.08);color:var(--gold);}
+
+.seg2{display:grid;grid-template-columns:1fr 1fr;gap:8px;}
+.seg2 button{
+  background:#0E1B30;border:1px solid var(--line);border-radius:12px;padding:11px;
+  color:var(--sub);font-size:13.5px;font-weight:600;
+}
+.seg2 button.active{border-color:var(--gold);background:rgba(232,185,77,.08);color:var(--gold);}
+
+.toggle-row{display:flex;align-items:center;justify-content:space-between;background:#0E1B30;border:1px solid var(--line);border-radius:12px;padding:12px 14px;margin-top:8px;}
+.toggle-row .t-label{font-size:13.5px;font-weight:500;}
+.toggle-row .t-sub{font-size:11.5px;color:var(--sub);margin-top:2px;}
+.switch{position:relative;width:44px;height:25px;flex:none;}
+.switch input{opacity:0;width:0;height:0;}
+.slider{position:absolute;inset:0;background:#2A3E5C;border-radius:999px;transition:.2s;}
+.slider::before{content:"";position:absolute;width:19px;height:19px;left:3px;top:3px;background:#fff;border-radius:50%;transition:.2s;}
+.switch input:checked + .slider{background:var(--gold);}
+.switch input:checked + .slider::before{transform:translateX(19px);}
+
+.checkbox-row{display:flex;align-items:center;gap:9px;margin-top:10px;font-size:13px;color:var(--sub);}
+.checkbox-row input{width:16px;height:16px;accent-color:var(--gold);}
+
+/* ---------- METER / RESULT ---------- */
+.meter{
+  background:linear-gradient(180deg,#101F38,#0A1526);
+  border:1px solid var(--line);border-radius:14px;padding:20px;text-align:center;margin-bottom:16px;
+  position:relative;overflow:hidden;
+}
+.meter::before{content:"";position:absolute;inset:0;background:repeating-linear-gradient(90deg,transparent,transparent 3px,rgba(255,255,255,.015) 3px,rgba(255,255,255,.015) 4px);}
+.meter .label{font-size:11px;letter-spacing:1.5px;color:var(--sub);text-transform:uppercase;margin-bottom:6px;position:relative;}
+.meter .amount{font-family:'JetBrains Mono',monospace;font-size:clamp(30px,5vw,42px);font-weight:700;color:var(--gold);letter-spacing:1px;position:relative;text-shadow:0 0 22px rgba(232,185,77,.35);}
+.meter .amount small{font-size:16px;color:var(--sub);}
+.meter .row-stats{display:flex;justify-content:center;gap:22px;margin-top:12px;font-size:12.5px;color:var(--sub);position:relative;}
+.meter .row-stats b{color:var(--ink);font-family:'JetBrains Mono',monospace;}
+
+.breakdown{font-size:13px;}
+.breakdown .li{display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px dashed var(--line);color:var(--sub);}
+.breakdown .li b{color:var(--ink);font-weight:600;font-family:'JetBrains Mono',monospace;}
+.breakdown .li.total{border-bottom:none;border-top:1px solid var(--line);margin-top:4px;padding-top:12px;color:var(--ink);font-weight:600;font-size:14.5px;}
+.breakdown .li.total b{color:var(--gold);font-size:16px;}
+.tag-save{display:inline-block;background:rgba(62,216,160,.12);color:var(--green);border:1px solid rgba(62,216,160,.35);padding:2px 8px;border-radius:999px;font-size:11px;margin-left:6px;}
+
+.actions-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:16px;}
+.btn{
+  border:none;border-radius:12px;padding:13px;font-size:13.5px;font-weight:600;
+  display:flex;align-items:center;justify-content:center;gap:8px;transition:.15s;
+}
+.btn svg{width:17px;height:17px;flex:none;}
+.btn-primary{background:linear-gradient(135deg,var(--gold),var(--gold-d));color:#1A1300;grid-column:1/-1;}
+.btn-primary:hover{filter:brightness(1.06);}
+.btn-secondary{background:var(--card2);color:var(--ink);border:1px solid var(--line);}
+.btn-secondary:hover{border-color:var(--gold);color:var(--gold);}
+
+/* ---------- QR PANEL ---------- */
+.qr-panel{display:none;text-align:center;margin-top:14px;background:#fff;border-radius:14px;padding:18px;}
+.qr-panel.open{display:block;}
+#qrcode{display:flex;justify-content:center;}
+.qr-panel p{color:#333;font-size:12px;margin:10px 0 0;}
+
+/* ---------- HISTORY ---------- */
+.hist-item{
+  display:flex;justify-content:space-between;align-items:center;
+  background:#0E1B30;border:1px solid var(--line);border-radius:10px;
+  padding:11px 13px;margin-bottom:8px;font-size:12.5px;
+}
+.hist-item .l1{color:var(--ink);font-weight:600;}
+.hist-item .l2{color:var(--sub);font-size:11.5px;margin-top:2px;}
+.hist-item .amt{font-family:'JetBrains Mono',monospace;color:var(--gold);font-weight:700;}
+.hist-empty{color:var(--sub);font-size:13px;text-align:center;padding:20px 0;}
+.hist-del{background:none;border:none;color:var(--sub);}
+.hist-del:hover{color:var(--red);}
+
+/* ---------- INVOICE MODAL ---------- */
+.overlay{position:fixed;inset:0;background:rgba(4,9,18,.75);backdrop-filter:blur(4px);display:none;align-items:flex-start;justify-content:center;z-index:200;padding:26px 16px;overflow:auto;}
+.overlay.open{display:flex;}
+#invoiceBox{
+  background:#fff;color:#1A1A1A;width:100%;max-width:520px;border-radius:14px;overflow:hidden;
+  box-shadow:0 30px 80px rgba(0,0,0,.5);position:relative;
+}
+#invoiceBox.fs{max-width:100%;height:100vh;border-radius:0;}
+.inv-head{background:linear-gradient(135deg,#0F1E33,#152741);color:#fff;padding:22px 26px;display:flex;justify-content:space-between;align-items:flex-start;}
+.inv-head .mark{width:34px;height:34px;border-radius:9px;background:linear-gradient(135deg,var(--gold),#F3D385);color:#1A1300;font-weight:700;font-family:'Space Grotesk',sans-serif;display:flex;align-items:center;justify-content:center;margin-bottom:8px;}
+.inv-head h3{margin:0;font-family:'Space Grotesk',sans-serif;font-size:18px;}
+.inv-head .id{font-family:'JetBrains Mono',monospace;font-size:11px;color:#9CA8BA;margin-top:4px;}
+.inv-head .badge{background:rgba(62,216,160,.15);color:#3ED8A0;border:1px solid rgba(62,216,160,.4);font-size:10.5px;padding:4px 9px;border-radius:999px;font-weight:600;}
+.inv-body{padding:24px 26px;}
+.inv-route{display:flex;gap:12px;margin-bottom:18px;}
+.inv-route .dots{display:flex;flex-direction:column;align-items:center;padding-top:4px;}
+.inv-route .dot{width:8px;height:8px;border-radius:50%;background:#152741;}
+.inv-route .dot.end{background:var(--gold-d);}
+.inv-route .line{width:1.5px;flex:1;background:#D8DEE8;margin:3px 0;}
+.inv-route .pts{flex:1;font-size:13px;}
+.inv-route .pts .p{padding-bottom:16px;}
+.inv-route .pts .lbl{font-size:10.5px;color:#93A3BC;text-transform:uppercase;letter-spacing:.5px;}
+.inv-route .pts .val{font-weight:600;color:#1A1A1A;}
+.inv-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:18px;}
+.inv-grid .box{background:#F4F6FA;border-radius:10px;padding:11px 13px;}
+.inv-grid .box .k{font-size:10.5px;color:#8994A6;text-transform:uppercase;letter-spacing:.4px;}
+.inv-grid .box .v{font-family:'JetBrains Mono',monospace;font-weight:700;font-size:14.5px;margin-top:3px;}
+.inv-table{width:100%;border-collapse:collapse;font-size:13px;margin-bottom:14px;}
+.inv-table td{padding:8px 0;border-bottom:1px solid #EEF1F6;color:#4A5568;}
+.inv-table td:last-child{text-align:right;font-family:'JetBrains Mono',monospace;color:#1A1A1A;font-weight:600;}
+.inv-total{display:flex;justify-content:space-between;align-items:center;background:#152741;color:#fff;border-radius:12px;padding:16px 18px;margin-top:6px;}
+.inv-total .k{font-size:12.5px;color:#93A3BC;}
+.inv-total .v{font-family:'JetBrains Mono',monospace;font-size:22px;font-weight:700;color:var(--gold);}
+.inv-foot{padding:16px 26px 22px;text-align:center;}
+.inv-foot .sec{display:inline-flex;align-items:center;gap:6px;font-size:10.5px;color:#B0B8C4;letter-spacing:.5px;}
+.inv-close{position:absolute;top:14px;right:14px;background:rgba(255,255,255,.12);border:none;color:#fff;width:30px;height:30px;border-radius:8px;display:flex;align-items:center;justify-content:center;}
+.inv-actions{display:flex;flex-wrap:wrap;gap:8px;padding:0 26px 22px;}
+.inv-actions button{flex:1;min-width:110px;background:#F4F6FA;border:1px solid #E3E8F0;color:#1A1A1A;border-radius:10px;padding:10px;font-size:12px;font-weight:600;display:flex;align-items:center;justify-content:center;gap:6px;}
+.inv-actions button:hover{border-color:var(--gold-d);color:var(--gold-d);}
+.inv-actions button.wide{flex-basis:100%;background:#152741;color:#fff;border:none;}
+
+@media print{
+  body *{visibility:hidden;}
+  #invoiceBox, #invoiceBox *{visibility:visible;}
+  #invoiceBox{position:fixed;inset:0;max-width:none;border-radius:0;box-shadow:none;}
+  .inv-actions,.inv-close{display:none!important;}
+}
+
+/* ---------- TOAST ---------- */
+#toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(20px);background:#152741;border:1px solid var(--line);color:#fff;padding:12px 18px;border-radius:12px;font-size:13.5px;display:flex;align-items:center;gap:8px;opacity:0;pointer-events:none;transition:.25s;z-index:300;box-shadow:0 15px 40px rgba(0,0,0,.4);}
+#toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
+#toast svg{width:16px;height:16px;color:var(--green);flex:none;}
+
+footer{text-align:center;color:var(--sub);font-size:12px;padding:40px 20px 10px;}
+
+::-webkit-scrollbar{width:8px;}
+::-webkit-scrollbar-thumb{background:var(--line);border-radius:8px;}
+</style>
 </head>
-<body class="bg-slate-50 text-slate-800 font-sans antialiased flex flex-col min-h-screen">
+<body>
 
-  <!-- Header Section -->
-  <header class="bg-blue-600 text-white shadow-md sticky top-0 z-50">
-    <div class="max-w-7xl mx-auto px-4 py-3 flex justify-between items-center">
-      <div class="flex items-center space-x-2">
-        <i data-lucide="car" class="w-8 h-8 text-yellow-300"></i>
-        <div>
-          <h1 class="text-xl font-bold leading-tight">GO-MOVE Express</h1>
-          <p class="text-xs text-blue-100">Đặt Xe Nhanh - Giá Chuẩn - An Tâm</p>
-        </div>
-      </div>
-
-      <div class="flex items-center space-x-2">
-        <!-- Install PWA Button -->
-        <button id="installPwaBtn" class="hidden bg-yellow-400 hover:bg-yellow-500 text-blue-900 font-semibold px-3 py-1.5 rounded-lg text-sm transition flex items-center space-x-1 shadow">
-          <i data-lucide="download" class="w-4 h-4"></i>
-          <span class="hidden sm:inline">Cài ứng dụng</span>
-        </button>
-        <button id="toggleFullscreenBtn" onclick="toggleFullScreen()" class="p-2 hover:bg-blue-700 rounded-lg transition" title="Toàn màn hình">
-          <i data-lucide="maximize" id="fullscreenIcon" class="w-5 h-5"></i>
-        </button>
-      </div>
+<header class="top">
+  <div class="topbar">
+    <div class="brand">
+      <div class="mark">SM</div>
+      <div class="name">Phuong<span>SM</span></div>
     </div>
-  </header>
-
-  <!-- Main Content Layout -->
-  <main class="flex-grow max-w-7xl w-full mx-auto p-2 sm:p-4 grid grid-cols-1 lg:grid-cols-12 gap-4">
-
-    <!-- Left Column: Booking Controls & Price Calculation (5 cols) -->
-    <div class="lg:col-span-5 flex flex-col space-y-4">
-      
-      <!-- Location Input Box -->
-      <div class="bg-white p-4 rounded-xl shadow-sm border border-slate-200">
-        <h2 class="text-base font-bold text-slate-700 mb-3 flex items-center space-x-2">
-          <i data-lucide="navigation" class="w-5 h-5 text-blue-600"></i>
-          <span>Hành Trình Chuyến Xe</span>
-        </h2>
-
-        <!-- Pickup Location -->
-        <div class="mb-3 relative">
-          <label class="block text-xs font-semibold text-slate-500 mb-1">Điểm đi (Xuất phát)</label>
-          <div class="flex space-x-2">
-            <div class="relative flex-grow">
-              <input type="text" id="pickupInput" placeholder="Đang xác định vị trí..." class="w-full pl-9 pr-3 py-2 text-sm border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none">
-              <i data-lucide="map-pin" class="w-4 h-4 text-emerald-600 absolute left-3 top-2.5"></i>
-            </div>
-            <button onclick="getCurrentLocation()" class="px-3 py-2 bg-emerald-50 hover:bg-emerald-100 text-emerald-700 border border-emerald-200 rounded-lg text-xs font-medium flex items-center space-x-1 transition" title="Tự động lấy vị trí hiện tại">
-              <i data-lucide="crosshair" class="w-4 h-4"></i>
-              <span class="hidden sm:inline">Vị trí tôi</span>
-            </button>
-          </div>
-          <div id="pickupSuggestions" class="hidden absolute left-0 right-0 top-full mt-1 bg-white border border-slate-200 rounded-lg shadow-lg z-20 max-h-40 overflow-y-auto text-sm"></div>
-        </div>
-
-        <!-- Destination Location -->
-        <div class="relative">
-          <label class="block text-xs font-semibold text-slate-500 mb-1">Điểm đến (Nơi đến)</label>
-          <div class="relative">
-            <input type="text" id="destInput" placeholder="Nhập địa chỉ đến..." class="w-full pl-9 pr-3 py-2 text-sm border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none">
-            <i data-lucide="map-pin" class="w-4 h-4 text-red-500 absolute left-3 top-2.5"></i>
-          </div>
-          <div id="destSuggestions" class="hidden absolute left-0 right-0 top-full mt-1 bg-white border border-slate-200 rounded-lg shadow-lg z-20 max-h-40 overflow-y-auto text-sm"></div>
-        </div>
+    <div class="top-actions">
+      <div class="pill" title="Số lượt xem thật, đồng bộ giữa mọi người mở link">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7-11-7-11-7z"/><circle cx="12" cy="12" r="3"/></svg>
+        <b id="viewCount">—</b>
       </div>
-
-      <!-- Vehicle Selection & Trip Options -->
-      <div class="bg-white p-4 rounded-xl shadow-sm border border-slate-200 space-y-4">
-        
-        <!-- Trip Type Selection (1 chiều / Khứ hồi) -->
-        <div>
-          <label class="block text-xs font-semibold text-slate-500 mb-2">Hình thức chuyến đi</label>
-          <div class="grid grid-cols-2 gap-2 p-1 bg-slate-100 rounded-lg">
-            <button id="btnOneWay" onclick="setTripType('oneway')" class="py-2 text-sm font-semibold rounded-md transition shadow-sm bg-white text-blue-600">
-              Đường 1 chiều
-            </button>
-            <button id="btnRoundTrip" onclick="setTripType('round')" class="py-2 text-sm font-semibold rounded-md text-slate-600 hover:text-slate-900 transition">
-              Đường Khứ hồi
-            </button>
-          </div>
-        </div>
-
-        <!-- Discount Toggle (Chỉ hiện/khả dụng khi là Khứ Hồi) -->
-        <div id="discountToggleContainer" class="p-3 bg-blue-50 rounded-lg border border-blue-100 flex items-center justify-between">
-          <div class="flex items-center space-x-2">
-            <i data-lucide="percent" class="w-5 h-5 text-blue-600"></i>
-            <div>
-              <p class="text-xs font-bold text-slate-800" id="discountLabelText">2x Khứ hồi</p>
-              <p class="text-[11px] text-slate-500" id="discountSubText">Tắt: Gấp đôi 1 chiều | Bật: Giảm theo km</p>
-            </div>
-          </div>
-          <label class="relative inline-flex items-center cursor-pointer">
-            <input type="checkbox" id="discountToggle" onchange="calculatePrice()" class="sr-only peer">
-            <div class="w-11 h-6 bg-slate-300 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
-          </label>
-        </div>
-
-        <!-- Vehicle Type Picker -->
-        <div>
-          <label class="block text-xs font-semibold text-slate-500 mb-2">Chọn Loại Phương Tiện</label>
-          <div class="grid grid-cols-2 gap-2" id="vehicleGrid">
-            
-            <!-- Xe Máy -->
-            <button onclick="selectVehicle('bike')" id="v-bike" class="vehicle-btn border-2 border-blue-600 bg-blue-50/50 p-2.5 rounded-xl flex items-center space-x-3 transition">
-              <div class="p-2 bg-blue-100 text-blue-600 rounded-lg">
-                <i data-lucide="bike" class="w-5 h-5"></i>
-              </div>
-              <div class="text-left">
-                <p class="text-xs font-bold">Xe máy</p>
-                <p class="text-[10px] text-slate-500">2km đầu: 10k</p>
-              </div>
-            </button>
-
-            <!-- Ô tô 4 chỗ -->
-            <button onclick="selectVehicle('car4')" id="v-car4" class="vehicle-btn border-2 border-slate-200 p-2.5 rounded-xl flex items-center space-x-3 transition">
-              <div class="p-2 bg-slate-100 text-slate-600 rounded-lg">
-                <i data-lucide="car" class="w-5 h-5"></i>
-              </div>
-              <div class="text-left">
-                <p class="text-xs font-bold">Ô tô 4 chỗ</p>
-                <p class="text-[10px] text-slate-500">2km đầu: 20k</p>
-              </div>
-            </button>
-
-            <!-- Ô tô 7 chỗ -->
-            <button onclick="selectVehicle('car7')" id="v-car7" class="vehicle-btn border-2 border-slate-200 p-2.5 rounded-xl flex items-center space-x-3 transition">
-              <div class="p-2 bg-slate-100 text-slate-600 rounded-lg">
-                <i data-lucide="truck" class="w-5 h-5"></i>
-              </div>
-              <div class="text-left">
-                <p class="text-xs font-bold">Ô tô 7 chỗ</p>
-                <p class="text-[10px] text-slate-500">2km đầu: 25k</p>
-              </div>
-            </button>
-
-            <!-- Ô tô 16 chỗ -->
-            <button onclick="selectVehicle('car16')" id="v-car16" class="vehicle-btn border-2 border-slate-200 p-2.5 rounded-xl flex items-center space-x-3 transition">
-              <div class="p-2 bg-slate-100 text-slate-600 rounded-lg">
-                <i data-lucide="bus" class="w-5 h-5"></i>
-              </div>
-              <div class="text-left">
-                <p class="text-xs font-bold">Ô tô 16 chỗ</p>
-                <p class="text-[10px] text-slate-500">2km đầu: 40k</p>
-              </div>
-            </button>
-
-          </div>
-        </div>
-
-        <!-- Waiting Time Input -->
-        <div>
-          <div class="flex justify-between items-center mb-1">
-            <label class="text-xs font-semibold text-slate-500">Thời gian chờ thêm (Giờ)</label>
-            <span class="text-xs text-blue-600 font-bold" id="waitTimeDisplay">0 giờ</span>
-          </div>
-          <input type="range" id="waitTime" min="0" max="10" step="0.5" value="0" oninput="updateWaitTime(this.value)" class="w-full h-2 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-blue-600">
-          <div class="flex justify-between text-[10px] text-slate-400 mt-1">
-            <span>0h</span>
-            <span>5h</span>
-            <span>10h</span>
-          </div>
-        </div>
-
-      </div>
-
-      <!-- Price Breakdown Summary Box -->
-      <div class="bg-gradient-to-br from-blue-900 to-indigo-900 text-white p-4 rounded-xl shadow-md space-y-3">
-        <div class="flex justify-between items-center border-b border-blue-800/60 pb-2">
-          <span class="text-xs text-blue-200">Quãng đường 1 chiều</span>
-          <span class="font-bold text-yellow-300" id="summaryDistance">0.0 km</span>
-        </div>
-        <div class="flex justify-between items-center border-b border-blue-800/60 pb-2">
-          <span class="text-xs text-blue-200">Thời gian dự kiến</span>
-          <span class="font-semibold" id="summaryDuration">0 phút</span>
-        </div>
-        <div class="flex justify-between items-center border-b border-blue-800/60 pb-2">
-          <span class="text-xs text-blue-200">Phí chờ (<span id="summaryWaitHours">0</span>h)</span>
-          <span class="font-semibold" id="summaryWaitFee">0 ₫</span>
-        </div>
-        <div id="discountRow" class="hidden flex justify-between items-center border-b border-blue-800/60 pb-2 text-emerald-300">
-          <span class="text-xs">Mức Khuyến Mãi Khứ Hồi</span>
-          <span class="font-bold" id="summaryDiscountRate">-0%</span>
-        </div>
-        <div class="pt-1 flex justify-between items-end">
-          <div>
-            <p class="text-[11px] text-blue-200 uppercase tracking-wider">TỔNG CƯỚC PHÍ</p>
-            <p class="text-2xl font-black text-yellow-400 leading-tight" id="summaryTotalPrice">0 ₫</p>
-          </div>
-          <button onclick="generateInvoiceModal()" class="bg-emerald-500 hover:bg-emerald-600 text-white px-4 py-2.5 rounded-lg font-bold text-sm shadow flex items-center space-x-1.5 transition">
-            <i data-lucide="file-text" class="w-4 h-4"></i>
-            <span>Tạo Hóa Đơn</span>
-          </button>
-        </div>
-      </div>
-
-    </div>
-
-    <!-- Right Column: Interactive Map Display (7 cols) -->
-    <div class="lg:col-span-7 flex flex-col h-[400px] lg:h-auto min-h-[400px] bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden relative">
-      <!-- Map Header overlay -->
-      <div class="absolute top-3 left-3 right-3 z-10 flex justify-between items-center pointer-events-none">
-        <div class="bg-white/90 backdrop-blur border border-slate-200 shadow px-3 py-1.5 rounded-lg text-xs font-semibold text-slate-700 pointer-events-auto flex items-center space-x-2">
-          <span class="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse"></span>
-          <span>Bản đồ lộ trình OpenStreetMap</span>
-        </div>
-        <button onclick="resetMapView()" class="bg-white/90 hover:bg-white backdrop-blur border border-slate-200 shadow p-2 rounded-lg text-slate-700 pointer-events-auto transition" title="Đặt lại góc nhìn bản đồ">
-          <i data-lucide="locate-fixed" class="w-4 h-4"></i>
-        </button>
-      </div>
-
-      <!-- Leaflet Map Container -->
-      <div id="map"></div>
-    </div>
-
-  </main>
-
-  <!-- MODAL: HÓA ĐƠN VÀ ĐỊNH DẠNG XUẤT BẢN -->
-  <div id="invoiceModal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 hidden flex items-center justify-center p-2 sm:p-4 overflow-y-auto">
-    <div class="bg-white w-full max-w-2xl rounded-2xl shadow-2xl overflow-hidden flex flex-col max-h-[92vh]">
-      
-      <!-- Modal Header -->
-      <div class="bg-slate-800 text-white px-4 py-3 flex justify-between items-center border-b border-slate-700">
-        <div class="flex items-center space-x-2">
-          <i data-lucide="receipt" class="w-5 h-5 text-yellow-400"></i>
-          <h3 class="font-bold text-sm sm:text-base">Hóa Đơn Đặt Xe Chi Tiết</h3>
-        </div>
-        <div class="flex items-center space-x-2">
-          <button onclick="toggleModalFullscreen()" class="text-slate-300 hover:text-white p-1 rounded transition" title="Phóng to / Thu nhỏ">
-            <i data-lucide="maximize-2" id="modalMaxIcon" class="w-4 h-4"></i>
-          </button>
-          <button onclick="closeInvoiceModal()" class="text-slate-300 hover:text-white p-1 rounded transition">
-            <i data-lucide="x" class="w-5 h-5"></i>
-          </button>
-        </div>
-      </div>
-
-      <!-- Export Action Toolbar -->
-      <div class="bg-slate-100 p-2 border-b border-slate-200 flex flex-wrap gap-1.5 justify-center sm:justify-start text-xs font-semibold">
-        <button onclick="exportPDF()" class="px-2.5 py-1.5 bg-red-600 hover:bg-red-700 text-white rounded flex items-center space-x-1 shadow-sm transition">
-          <i data-lucide="file-check" class="w-3.5 h-3.5"></i>
-          <span>Xuất PDF</span>
-        </button>
-        <button onclick="exportDocx()" class="px-2.5 py-1.5 bg-blue-600 hover:bg-blue-700 text-white rounded flex items-center space-x-1 shadow-sm transition">
-          <i data-lucide="file-text" class="w-3.5 h-3.5"></i>
-          <span>Xuất Docx</span>
-        </button>
-        <button onclick="exportExcel()" class="px-2.5 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded flex items-center space-x-1 shadow-sm transition">
-          <i data-lucide="sheet" class="w-3.5 h-3.5"></i>
-          <span>Trang tính</span>
-        </button>
-        <button onclick="exportImage()" class="px-2.5 py-1.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded flex items-center space-x-1 shadow-sm transition">
-          <i data-lucide="image" class="w-3.5 h-3.5"></i>
-          <span>Tải Ảnh</span>
-        </button>
-        <button onclick="printInvoice()" class="px-2.5 py-1.5 bg-slate-700 hover:bg-slate-800 text-white rounded flex items-center space-x-1 shadow-sm transition">
-          <i data-lucide="printer" class="w-3.5 h-3.5"></i>
-          <span>In Ngay</span>
-        </button>
-      </div>
-
-      <!-- Printable Invoice Area (Standard Styled) -->
-      <div class="p-4 sm:p-6 overflow-y-auto flex-grow bg-slate-50">
-        <div id="invoicePrintArea" class="bg-white p-6 rounded-xl border border-slate-200 shadow-sm text-slate-800 relative watermark-bg max-w-xl mx-auto space-y-4">
-          
-          <!-- Anti-fake Stamp & Header -->
-          <div class="flex justify-between items-start border-b border-slate-200 pb-4">
-            <div>
-              <div class="flex items-center space-x-1.5 text-blue-600 font-extrabold text-lg">
-                <i data-lucide="car" class="w-6 h-6"></i>
-                <span>GO-MOVE EXPRESS</span>
-              </div>
-              <p class="text-[11px] text-slate-500">Dịch vụ vận chuyển hành khách chuẩn quốc tế</p>
-              <p class="text-[10px] text-slate-400 mt-0.5">Mã HĐ: <span id="invCode" class="font-mono font-bold text-slate-600">GME-8932</span></p>
-            </div>
-            
-            <div class="text-right flex flex-col items-end">
-              <!-- Security Stamp Badge -->
-              <div class="border-2 border-emerald-600 text-emerald-700 rounded-lg px-2 py-1 text-[10px] font-black uppercase tracking-widest bg-emerald-50 flex items-center space-x-1 shadow-sm">
-                <i data-lucide="shield-check" class="w-3.5 h-3.5"></i>
-                <span>Hóa Đơn Thật 100%</span>
-              </div>
-              <p class="text-[10px] text-slate-400 mt-1" id="invDate">Ngày: --/--/----</p>
-            </div>
-          </div>
-
-          <!-- Trip Info Details -->
-          <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs bg-slate-50 p-3 rounded-lg border border-slate-100">
-            <div>
-              <span class="text-slate-400 block text-[10px]">Điểm xuất phát:</span>
-              <p class="font-semibold text-slate-700 truncate" id="invPickup">--</p>
-            </div>
-            <div>
-              <span class="text-slate-400 block text-[10px]">Điểm đến:</span>
-              <p class="font-semibold text-slate-700 truncate" id="invDest">--</p>
-            </div>
-            <div>
-              <span class="text-slate-400 block text-[10px]">Loại phương tiện:</span>
-              <p class="font-bold text-blue-600" id="invVehicle">--</p>
-            </div>
-            <div>
-              <span class="text-slate-400 block text-[10px]">Loại hành trình:</span>
-              <p class="font-bold text-slate-700" id="invTripType">--</p>
-            </div>
-          </div>
-
-          <!-- Calculation Matrix Table -->
-          <table class="w-full text-xs text-left border-collapse">
-            <thead>
-              <tr class="bg-slate-100 text-slate-600 border-y border-slate-200">
-                <th class="py-2 px-2 font-bold">Hạng mục tính toán</th>
-                <th class="py-2 px-2 text-right font-bold">Chi tiết / Giá</th>
-              </tr>
-            </thead>
-            <tbody class="divide-y divide-slate-100">
-              <tr>
-                <td class="py-2 px-2 text-slate-600">Quãng đường 1 chiều</td>
-                <td class="py-2 px-2 text-right font-medium" id="invDistance">0 km</td>
-              </tr>
-              <tr>
-                <td class="py-2 px-2 text-slate-600">Thời gian di chuyển ước tính</td>
-                <td class="py-2 px-2 text-right font-medium" id="invDuration">0 phút</td>
-              </tr>
-              <tr>
-                <td class="py-2 px-2 text-slate-600">Thời gian chờ thêm (<span id="invWaitHours">0</span>h)</td>
-                <td class="py-2 px-2 text-right font-medium" id="invWaitFee">0 ₫</td>
-              </tr>
-              <tr id="invDiscountRow">
-                <td class="py-2 px-2 text-emerald-600 font-medium">Chiết khấu / Giảm giá khứ hồi</td>
-                <td class="py-2 px-2 text-right font-bold text-emerald-600" id="invDiscountVal">-0 ₫</td>
-              </tr>
-            </tbody>
-          </table>
-
-          <!-- Total Amount Highlight -->
-          <div class="bg-blue-50 border border-blue-200 rounded-xl p-3 flex justify-between items-center">
-            <div>
-              <p class="text-[10px] text-blue-600 font-bold uppercase tracking-wider">Tổng cộng thanh toán</p>
-              <p class="text-xs text-slate-500">Đã bao gồm đầy đủ VAT & phí dịch vụ</p>
-            </div>
-            <p class="text-xl font-black text-blue-700" id="invTotal">0 ₫</p>
-          </div>
-
-          <!-- Anti-Counterfeit Verification Footer -->
-          <div class="pt-2 border-t border-dashed border-slate-200 text-center text-[10px] text-slate-400 space-y-1">
-            <div class="flex justify-center items-center space-x-1 text-slate-500">
-              <i data-lucide="lock" class="w-3 h-3 text-emerald-600"></i>
-              <span class="font-mono">Chữ ký số xác thực: GO-MOVE-SECURE-HASH-<span id="invHash">99A2B8</span></span>
-            </div>
-            <p>Cảm ơn quý khách đã tin tưởng sử dụng dịch vụ của GO-MOVE Express!</p>
-          </div>
-
-        </div>
-      </div>
-
+      <button class="icon-btn" id="btnNotif" title="Bật thông báo">
+        <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+      </button>
+      <button class="icon-btn" id="btnWake" title="Giữ màn hình luôn sáng">
+        <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"/><path d="M12 1v2M12 21v2M4.2 4.2l1.4 1.4M18.4 18.4l1.4 1.4M1 12h2M21 12h2M4.2 19.8l1.4-1.4M18.4 5.6l1.4-1.4"/></svg>
+      </button>
+      <button class="icon-btn" id="btnInstall" title="Cài đặt ứng dụng">
+        <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3v12m0 0l-4-4m4 4l4-4M4 17v3a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-3"/></svg>
+      </button>
     </div>
   </div>
+</header>
 
-  <!-- JavaScript Logic -->
-  <script>
-    // --- 1. PWA Manifest Setup dynamically ---
-    const manifestData = {
-      name: "GO-MOVE Express Đặt Xe",
-      short_name: "GO-MOVE",
-      start_url: ".",
-      display: "standalone",
-      background_color: "#ffffff",
-      theme_color: "#2563eb",
-      icons: [
-        {
-          src: "https://cdn-icons-png.flaticon.com/512/3202/3202926.png",
-          sizes: "512x512",
-          type: "image/png"
-        }
-      ]
+<div class="wrap hero">
+  <div class="eyebrow">Đặt xe · Tính cước tức thời</div>
+  <h1 class="title">Tính cước chuyến đi minh bạch,<br>theo từng ki-lô-mét thật.</h1>
+  <p class="subtitle">Nhập điểm đi – điểm đến, chọn loại xe, PhuongSM tính giá theo đúng bảng cước niêm yết. Lưu lịch sử, xuất hoá đơn, chia sẻ chuyến đi chỉ trong một chạm.</p>
+</div>
+
+<div class="wrap layout">
+  <!-- LEFT: FORM -->
+  <div class="card">
+    <h2><span class="n">01</span> Hành trình</h2>
+
+    <div class="field">
+      <label>Điểm đón</label>
+      <div class="input-row">
+        <input type="text" id="fromInput" placeholder="Vị trí hiện tại hoặc nhập địa chỉ...">
+        <button class="btn-ghost" id="btnLocate" title="Dùng vị trí hiện tại">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="8"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3"/></svg>
+          Vị trí
+        </button>
+      </div>
+    </div>
+
+    <div class="field">
+      <label>Điểm đến</label>
+      <input type="text" id="toInput" placeholder="Nhập địa chỉ điểm đến...">
+    </div>
+
+    <div id="map"></div>
+
+    <div class="field" style="margin-top:14px;">
+      <label>Quãng đường (km) — chỉnh tay hoặc tự tính từ bản đồ</label>
+      <input type="number" id="kmInput" min="0" step="0.1" value="8" inputmode="decimal">
+    </div>
+
+    <div class="field">
+      <label>Thời gian chờ (phút, nếu có)</label>
+      <input type="number" id="waitInput" min="0" step="1" value="0" inputmode="numeric">
+    </div>
+
+    <h2 style="margin-top:22px;"><span class="n">02</span> Loại phương tiện</h2>
+    <div class="seg" id="vehicleSeg">
+      <button data-v="bike" class="active">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="5" cy="18" r="3"/><circle cx="19" cy="18" r="3"/><path d="M5 18l4-9h4l3 5h3M9 9h4"/></svg>
+        Xe máy
+      </button>
+      <button data-v="car4">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 13l2-6h14l2 6M3 13v5h2m14 0h2v-5M3 13h18"/><circle cx="7.5" cy="18" r="1.6"/><circle cx="16.5" cy="18" r="1.6"/></svg>
+        4 chỗ
+      </button>
+      <button data-v="car7">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 13l2-6h16l2 6M2 13v5h2m16 0h2v-5M2 13h20"/><circle cx="6.5" cy="18" r="1.6"/><circle cx="17.5" cy="18" r="1.6"/></svg>
+        7 chỗ
+      </button>
+      <button data-v="car16">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="8" width="20" height="9" rx="1.5"/><path d="M2 12h20M7 8v9M17 8v9"/><circle cx="6.5" cy="19" r="1.4"/><circle cx="17.5" cy="19" r="1.4"/></svg>
+        16 chỗ
+      </button>
+    </div>
+
+    <h2 style="margin-top:22px;"><span class="n">03</span> Chiều đi</h2>
+    <div class="seg2" id="tripSeg">
+      <button data-t="oneway" class="active">Đường 1 chiều</button>
+      <button data-t="round">Đường khứ hồi</button>
+    </div>
+
+    <div class="toggle-row" id="discountRow" style="display:none;">
+      <div>
+        <div class="t-label" id="discLabel">2x Khứ hồi</div>
+        <div class="t-sub">Bật để áp dụng mức giảm giá khứ hồi theo quãng đường</div>
+      </div>
+      <label class="switch"><input type="checkbox" id="discountToggle"><span class="slider"></span></label>
+    </div>
+    <label class="checkbox-row" id="loyalRow" style="display:none;">
+      <input type="checkbox" id="loyalCheck">
+      Khách hàng thân thiết / hợp đồng dài hạn (giảm cố định 25%)
+    </label>
+  </div>
+
+  <!-- RIGHT: RESULT -->
+  <div>
+    <div class="card">
+      <h2><span class="n">—</span> Cước phí ước tính</h2>
+      <div class="meter">
+        <div class="label">Tổng cước</div>
+        <div class="amount mono"><span id="fareAmount">0</span><small> ₫</small></div>
+        <div class="row-stats">
+          <div>Quãng đường <b id="statKm">0 km</b></div>
+          <div>~ Thời gian <b id="statTime">0 phút</b></div>
+        </div>
+      </div>
+
+      <div class="breakdown" id="breakdown"></div>
+
+      <div class="actions-grid">
+        <button class="btn btn-primary" id="btnSave">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 13l4 4L19 7"/></svg>
+          Lưu chuyến & Xuất hoá đơn
+        </button>
+        <button class="btn btn-secondary" id="btnShare">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><path d="M8.6 10.6l6.8-3.8M8.6 13.4l6.8 3.8"/></svg>
+          Chia sẻ
+        </button>
+        <button class="btn btn-secondary" id="btnQR">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><path d="M14 14h3v3h-3zM18 18h3v3h-3zM14 21h3M21 14v3"/></svg>
+          Mã QR
+        </button>
+      </div>
+
+      <div class="qr-panel" id="qrPanel">
+        <div id="qrcode"></div>
+        <p>Quét để mở lại chuyến tính giá này · màn hình đã bật sáng để dễ quét</p>
+      </div>
+    </div>
+
+    <div class="card" style="margin-top:20px;">
+      <h2><span class="n">↺</span> Lịch sử đường đi & tính giá</h2>
+      <div id="historyList"></div>
+    </div>
+  </div>
+</div>
+
+<footer>PhuongSM · Bảng cước niêm yết minh bạch · Dữ liệu lưu trữ an toàn trên thiết bị &amp; đồng bộ theo trình duyệt</footer>
+
+<!-- INVOICE OVERLAY -->
+<div class="overlay" id="overlay">
+  <div id="invoiceBox">
+    <button class="inv-close" id="invClose">✕</button>
+    <div class="inv-head">
+      <div>
+        <div class="mark">SM</div>
+        <h3>Hoá đơn đặt xe</h3>
+        <div class="id" id="invId">#PSM-000000</div>
+      </div>
+      <div class="badge">✓ Đã xác thực</div>
+    </div>
+    <div class="inv-body">
+      <div class="inv-route">
+        <div class="dots"><div class="dot"></div><div class="line"></div><div class="dot end"></div></div>
+        <div class="pts">
+          <div class="p"><div class="lbl">Điểm đón</div><div class="val" id="invFrom">—</div></div>
+          <div class="p"><div class="lbl">Điểm đến</div><div class="val" id="invTo">—</div></div>
+        </div>
+      </div>
+      <div class="inv-grid">
+        <div class="box"><div class="k">Phương tiện</div><div class="v" id="invVehicle">—</div></div>
+        <div class="box"><div class="k">Quãng đường</div><div class="v" id="invKm">—</div></div>
+        <div class="box"><div class="k">Chiều đi</div><div class="v" id="invTrip">—</div></div>
+        <div class="box"><div class="k">Thời gian</div><div class="v" id="invDate">—</div></div>
+      </div>
+      <table class="inv-table" id="invTable"></table>
+      <div class="inv-total">
+        <div><div class="k">Tổng thanh toán</div></div>
+        <div class="v" id="invTotal">0 ₫</div>
+      </div>
+    </div>
+    <div class="inv-actions">
+      <button id="invFullscreen">🔍 Mở rộng toàn màn hình</button>
+      <button id="invPrint">🖨️ In nhanh</button>
+      <button id="invPDF">📑 Tải PDF</button>
+      <button id="invXLSX">📄 Tải Trang tính</button>
+      <button id="invDOCX">📝 Tải Docx</button>
+      <button id="invImg">🖼️ In ảnh chất lượng cao</button>
+      <button class="wide" id="invShare">📤 Chia sẻ hoá đơn</button>
+    </div>
+    <div class="inv-foot">
+      <div class="sec">🔒 MÃ CHỐNG GIẢ MẠO: <span id="invSeal">—</span></div>
+    </div>
+  </div>
+</div>
+
+<div id="toast"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 13l4 4L19 7"/></svg><span id="toastMsg"></span></div>
+
+<script>
+/* ============ CONFIG: BẢNG GIÁ ============ */
+const RATES = {
+  bike:  {label:"Xe máy",        open:10000, t1:3500,  t2:3000,  wait:20000, icon:"🏍️"},
+  car4:  {label:"Ô tô 4 chỗ",    open:20000, t1:8000,  t2:7000,  wait:40000, icon:"🚗"},
+  car7:  {label:"Ô tô 7 chỗ",    open:25000, t1:10000, t2:9000,  wait:50000, icon:"🚐"},
+  car16: {label:"Ô tô 16 chỗ",   open:40000, t1:15000, t2:13000, wait:70000, icon:"🚌"}
+};
+let state = { vehicle:"bike", trip:"oneway", discount:false, loyal:false, from:"", to:"", fromCoord:null, toCoord:null };
+let lastResult = null;
+
+const fmt = n => Math.round(n).toLocaleString('vi-VN');
+const $ = id => document.getElementById(id);
+
+/* ============ STORAGE HELPERS (persistent, không mất dữ liệu) ============ */
+async function storeSet(key, value, shared=false){
+  try{ return await window.storage.set(key, JSON.stringify(value), shared); }
+  catch(e){ try{ localStorage.setItem((shared?'shared:':'')+key, JSON.stringify(value)); }catch(_){} return null; }
+}
+async function storeGet(key, shared=false){
+  try{
+    const r = await window.storage.get(key, shared);
+    return r ? JSON.parse(r.value) : null;
+  }catch(e){
+    try{ const v = localStorage.getItem((shared?'shared:':'')+key); return v?JSON.parse(v):null; }catch(_){ return null; }
+  }
+}
+
+/* ============ VIEW COUNTER THẬT (đồng bộ dùng chung, không reset) ============ */
+async function initViewCounter(){
+  const key = "phuongsm:view_count";
+  let count = await storeGet(key, true);
+  if(typeof count !== 'number') count = 0;
+  // chỉ tăng 1 lần mỗi phiên trình duyệt để tránh đếm trùng khi F5 liên tục
+  if(!sessionStorage.getItem('psm_counted')){
+    count += 1;
+    await storeSet(key, count, true);
+    sessionStorage.setItem('psm_counted','1');
+  }
+  $('viewCount').textContent = count.toLocaleString('vi-VN');
+}
+initViewCounter();
+
+/* ============ TOAST ============ */
+let toastTimer;
+function toast(msg){
+  $('toastMsg').textContent = msg;
+  $('toast').classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(()=>$('toast').classList.remove('show'), 2600);
+}
+
+/* ============ VEHICLE / TRIP SEGMENT UI ============ */
+document.querySelectorAll('#vehicleSeg button').forEach(b=>{
+  b.onclick = ()=>{
+    document.querySelectorAll('#vehicleSeg button').forEach(x=>x.classList.remove('active'));
+    b.classList.add('active');
+    state.vehicle = b.dataset.v;
+    calc();
+  };
+});
+document.querySelectorAll('#tripSeg button').forEach(b=>{
+  b.onclick = ()=>{
+    document.querySelectorAll('#tripSeg button').forEach(x=>x.classList.remove('active'));
+    b.classList.add('active');
+    state.trip = b.dataset.t;
+    $('discountRow').style.display = state.trip==='round' ? 'flex' : 'none';
+    $('loyalRow').style.display = (state.trip==='round' && state.discount) ? 'flex' : 'none';
+    calc();
+  };
+});
+$('discountToggle').onchange = e=>{
+  state.discount = e.target.checked;
+  $('discLabel').textContent = state.discount ? "2x Khứ hồi giảm" : "2x Khứ hồi";
+  $('loyalRow').style.display = state.discount ? 'flex' : 'none';
+  calc();
+};
+$('loyalCheck').onchange = e=>{ state.loyal = e.target.checked; calc(); };
+$('kmInput').oninput = calc;
+$('waitInput').oninput = calc;
+$('fromInput').oninput = e=>{ state.from = e.target.value; };
+$('toInput').oninput = e=>{ state.to = e.target.value; };
+
+/* ============ TÍNH CƯỚC ============ */
+function discountRate(km){
+  if(state.loyal) return 0.25;
+  if(km < 20) return 0.10;
+  if(km <= 50) return 0.15;
+  return 0.20;
+}
+
+function calc(){
+  const r = RATES[state.vehicle];
+  const km = Math.max(0, parseFloat($('kmInput').value)||0);
+  const waitMin = Math.max(0, parseFloat($('waitInput').value)||0);
+  const waitHours = waitMin/60;
+
+  let oneWayDistCost = r.open;
+  if(km > 2){
+    const km1 = Math.min(km,20) - 2;
+    oneWayDistCost += km1 * r.t1;
+  }
+  if(km > 20){
+    oneWayDistCost += (km-20) * r.t2;
+  }
+  const waitCost = waitHours * r.wait;
+  const oneWayTotal = oneWayDistCost + waitCost;
+
+  let total, discPct=0, base2x=0;
+  if(state.trip === 'oneway'){
+    total = oneWayTotal;
+  } else {
+    base2x = oneWayTotal*2;
+    if(state.discount){
+      discPct = discountRate(km);
+      total = base2x * (1-discPct);
+    } else {
+      total = base2x;
+    }
+  }
+
+  const estMinutes = state.vehicle==='bike' ? km*2.4 : km*2.0;
+  const totalMinutes = Math.round(estMinutes*(state.trip==='round'?2:1) + waitMin);
+
+  $('fareAmount').textContent = fmt(total);
+  $('statKm').textContent = (state.trip==='round'? (km*2).toFixed(1) : km.toFixed(1)) + " km";
+  $('statTime').textContent = totalMinutes + " phút";
+
+  let rows = `<div class="li"><span>Giá mở cửa (2km đầu)</span><b>${fmt(r.open)} ₫</b></div>`;
+  if(km>2) rows += `<div class="li"><span>Km 3–20 (${Math.min(km,20)-2}km × ${fmt(r.t1)}₫)</span><b>${fmt((Math.min(km,20)-2)*r.t1)} ₫</b></div>`;
+  if(km>20) rows += `<div class="li"><span>Từ km 21 (${(km-20).toFixed(1)}km × ${fmt(r.t2)}₫)</span><b>${fmt((km-20)*r.t2)} ₫</b></div>`;
+  if(waitMin>0) rows += `<div class="li"><span>Phí chờ (${waitMin} phút)</span><b>${fmt(waitCost)} ₫</b></div>`;
+  if(state.trip==='round'){
+    rows += `<div class="li"><span>1 chiều × 2</span><b>${fmt(base2x)} ₫</b></div>`;
+    if(state.discount){
+      rows += `<div class="li"><span>Giảm giá khứ hồi<span class="tag-save">-${Math.round(discPct*100)}%</span></span><b>-${fmt(base2x-total)} ₫</b></div>`;
+    }
+  }
+  rows += `<div class="li total"><span>Tổng cộng</span><b>${fmt(total)} ₫</b></div>`;
+  $('breakdown').innerHTML = rows;
+
+  lastResult = { vehicle:state.vehicle, trip:state.trip, discount:state.discount, loyal:state.loyal,
+    km, waitMin, total, discPct, base2x, oneWayTotal, time:totalMinutes,
+    from: $('fromInput').value || "Vị trí hiện tại", to: $('toInput').value || "Chưa nhập điểm đến" };
+  return lastResult;
+}
+calc();
+
+/* ============ ĐỊNH VỊ THẬT (Geolocation) ============ */
+let map, marker, routeLine;
+try{
+  map = L.map('map', {zoomControl:false, attributionControl:false}).setView([21.0278,105.8342], 12);
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{maxZoom:19}).addTo(map);
+}catch(e){ /* bản đồ có thể không tải được nếu thiết bị chặn mạng ngoài */ }
+
+function haversine(a,b){
+  const R=6371, toRad = x=>x*Math.PI/180;
+  const dLat = toRad(b[0]-a[0]), dLon = toRad(b[1]-a[1]);
+  const s = Math.sin(dLat/2)**2 + Math.cos(toRad(a[0]))*Math.cos(toRad(b[0]))*Math.sin(dLon/2)**2;
+  return 2*R*Math.asin(Math.sqrt(s));
+}
+
+$('btnLocate').onclick = ()=>{
+  if(!navigator.geolocation){ toast("Thiết bị không hỗ trợ định vị"); return; }
+  toast("Đang lấy vị trí hiện tại...");
+  navigator.geolocation.getCurrentPosition(pos=>{
+    const {latitude,longitude} = pos.coords;
+    state.fromCoord = [latitude,longitude];
+    $('fromInput').value = `Vị trí hiện tại (${latitude.toFixed(4)}, ${longitude.toFixed(4)})`;
+    state.from = $('fromInput').value;
+    if(map){
+      map.setView([latitude,longitude], 14);
+      if(marker) marker.remove();
+      marker = L.marker([latitude,longitude]).addTo(map).bindPopup("Điểm đón").openPopup();
+    }
+    toast("Đã xác định vị trí hiện tại");
+    drawRoute();
+  }, err=>{
+    toast("Không thể lấy vị trí (bị chặn quyền hoặc thiết bị không hỗ trợ) — vui lòng nhập tay quãng đường");
+  }, {enableHighAccuracy:true, timeout:8000});
+};
+
+async function geocode(q){
+  try{
+    const res = await fetch(`https://nominatim.openstreetmap.org/search?format=json&limit=1&q=${encodeURIComponent(q)}`);
+    const data = await res.json();
+    if(data && data[0]) return [parseFloat(data[0].lat), parseFloat(data[0].lon)];
+  }catch(e){ /* mạng ngoài có thể bị giới hạn theo trình duyệt/thiết bị */ }
+  return null;
+}
+
+async function drawRoute(){
+  if(!map) return;
+  const toQ = $('toInput').value.trim();
+  if(!toQ) return;
+  const toC = await geocode(toQ);
+  if(!toC){ return; }
+  state.toCoord = toC;
+  const fromC = state.fromCoord || map.getCenter() && [map.getCenter().lat, map.getCenter().lng];
+  if(routeLine) routeLine.remove();
+  routeLine = L.polyline([fromC, toC], {color:'#E8B94D', weight:4, opacity:.85}).addTo(map);
+  L.marker(toC).addTo(map).bindPopup("Điểm đến");
+  map.fitBounds(routeLine.getBounds(), {padding:[30,30]});
+  const km = haversine(fromC, toC);
+  $('kmInput').value = km.toFixed(1);
+  calc();
+  toast(`Đã tính quãng đường ước tính: ${km.toFixed(1)} km`);
+}
+$('toInput').addEventListener('change', drawRoute);
+
+/* ============ THÔNG BÁO THẬT (Notification API) ============ */
+$('btnNotif').onclick = async ()=>{
+  if(!('Notification' in window)){ toast("Trình duyệt không hỗ trợ thông báo"); return; }
+  const perm = await Notification.requestPermission();
+  if(perm === 'granted'){
+    $('btnNotif').classList.add('active');
+    toast("Đã bật thông báo trên thiết bị này");
+    new Notification("PhuongSM", {body:"Bạn sẽ nhận thông báo khi lưu chuyến đi mới."});
+  } else {
+    toast("Bạn chưa cho phép quyền thông báo");
+  }
+};
+
+/* ============ GIỮ MÀN HÌNH SÁNG (Wake Lock — trình duyệt không cho JS chỉnh độ sáng phần cứng) ============ */
+let wakeLock = null;
+$('btnWake').onclick = async ()=>{
+  try{
+    if(wakeLock){ await wakeLock.release(); wakeLock=null; $('btnWake').classList.remove('active'); toast("Đã tắt giữ sáng màn hình"); return; }
+    wakeLock = await navigator.wakeLock.request('screen');
+    $('btnWake').classList.add('active');
+    toast("Màn hình sẽ luôn bật sáng (trình duyệt không cho phép chỉnh độ sáng vật lý)");
+    wakeLock.addEventListener('release', ()=>$('btnWake').classList.remove('active'));
+  }catch(e){ toast("Thiết bị/trình duyệt không hỗ trợ giữ màn hình sáng"); }
+};
+
+/* ============ CÀI ĐẶT ỨNG DỤNG (PWA) ============ */
+let deferredPrompt;
+window.addEventListener('beforeinstallprompt', e=>{ e.preventDefault(); deferredPrompt=e; });
+$('btnInstall').onclick = async ()=>{
+  if(deferredPrompt){ deferredPrompt.prompt(); await deferredPrompt.userChoice; deferredPrompt=null; }
+  else{ toast("Dùng menu trình duyệt → 'Thêm vào Màn hình chính' / 'Cài đặt ứng dụng' để cài PhuongSM"); }
+};
+
+/* ============ QR CODE + BẬT SÁNG KHI XEM ============ */
+let qrGenerated = false;
+$('btnQR').onclick = ()=>{
+  const panel = $('qrPanel');
+  panel.classList.toggle('open');
+  if(panel.classList.contains('open')){
+    if(!qrGenerated){
+      new QRCode($('qrcode'), {text: location.href, width:180, height:180, colorDark:"#0F1B2E", colorLight:"#ffffff"});
+      qrGenerated = true;
+    }
+    if(navigator.wakeLock && !wakeLock){ $('btnWake').click(); }
+  }
+};
+
+/* ============ CHIA SẺ THẬT ============ */
+async function shareLink(title, text){
+  if(navigator.share){
+    try{ await navigator.share({title, text, url:location.href}); }catch(e){}
+  } else {
+    try{ await navigator.clipboard.writeText(location.href); toast("Đã sao chép đường link"); }
+    catch(e){ toast("Không thể sao chép — vui lòng sao chép thủ công"); }
+  }
+}
+$('btnShare').onclick = ()=> shareLink("PhuongSM — Tính cước chuyến đi", `Cước ước tính: ${$('fareAmount').textContent}₫`);
+
+/* ============ LỊCH SỬ (lưu bền vững, không mất) ============ */
+async function loadHistory(){
+  const list = (await storeGet('phuongsm:history')) || [];
+  const el = $('historyList');
+  if(!list.length){ el.innerHTML = `<div class="hist-empty">Chưa có chuyến nào được lưu</div>`; return; }
+  el.innerHTML = list.slice().reverse().map((h,i)=>`
+    <div class="hist-item">
+      <div>
+        <div class="l1">${RATES[h.vehicle].icon} ${h.from} → ${h.to}</div>
+        <div class="l2">${h.km.toFixed(1)} km · ${h.trip==='round'?'Khứ hồi':'1 chiều'} · ${new Date(h.date).toLocaleString('vi-VN')}</div>
+      </div>
+      <div style="display:flex;align-items:center;gap:10px;">
+        <div class="amt">${fmt(h.total)} ₫</div>
+        <button class="hist-del" data-idx="${list.length-1-i}" title="Xoá">✕</button>
+      </div>
+    </div>`).join('');
+  el.querySelectorAll('.hist-del').forEach(b=>{
+    b.onclick = async ()=>{
+      const idx = parseInt(b.dataset.idx);
+      const l = (await storeGet('phuongsm:history')) || [];
+      l.splice(idx,1);
+      await storeSet('phuongsm:history', l);
+      loadHistory();
     };
-    const manifestBlob = new Blob([JSON.stringify(manifestData)], {type: 'application/json'});
-    document.getElementById('manifest-placeholder').href = URL.createObjectURL(manifestBlob);
+  });
+}
+loadHistory();
 
-    let deferredPrompt;
-    window.addEventListener('beforeinstallprompt', (e) => {
-      e.preventDefault();
-      deferredPrompt = e;
-      const installBtn = document.getElementById('installPwaBtn');
-      if (installBtn) installBtn.classList.remove('hidden');
-    });
+/* ============ LƯU CHUYẾN + HOÁ ĐƠN ============ */
+function genId(){ return 'PSM-'+Date.now().toString().slice(-8); }
+function genSeal(id){ let h=0; for(const c of id) h=(h*31+c.charCodeAt(0))>>>0; return h.toString(16).toUpperCase().padStart(8,'0'); }
 
-    document.getElementById('installPwaBtn').addEventListener('click', async () => {
-      if (deferredPrompt) {
-        deferredPrompt.prompt();
-        const { outcome } = await deferredPrompt.userChoice;
-        if (outcome === 'accepted') {
-          document.getElementById('installPwaBtn').classList.add('hidden');
-        }
-        deferredPrompt = null;
-      }
-    });
+$('btnSave').onclick = async ()=>{
+  const r = calc();
+  const record = {...r, date: Date.now(), id: genId()};
+  const list = (await storeGet('phuongsm:history')) || [];
+  list.push(record);
+  await storeSet('phuongsm:history', list);
+  loadHistory();
+  toast("Đã lưu chuyến đi vào lịch sử");
+  if(Notification && Notification.permission==='granted'){
+    new Notification("Đã lưu chuyến đi", {body:`${record.from} → ${record.to}: ${fmt(record.total)}₫`});
+  }
+  openInvoice(record);
+};
 
-    // --- 2. BẢNG GIÁ QUY ĐỊNH (CHÍNH XÁC 100%) ---
-    const PRICING = {
-      bike:  { name: "Xe máy",       base: 10000, p3_20: 3500,  p21: 3000,  wait: 20000 },
-      car4:  { name: "Ô tô 4 chỗ",   base: 20000, p3_20: 8000,  p21: 7000,  wait: 40000 },
-      car7:  { name: "Ô tô 7 chỗ",   base: 25000, p3_20: 10000, p21: 9000,  wait: 50000 },
-      car16: { name: "Ô tô 16 chỗ",  base: 40000, p3_20: 15000, p21: 13000, wait: 70000 }
-    };
+function openInvoice(r){
+  $('invId').textContent = '#'+r.id;
+  $('invFrom').textContent = r.from;
+  $('invTo').textContent = r.to;
+  $('invVehicle').textContent = RATES[r.vehicle].icon+' '+RATES[r.vehicle].label;
+  $('invKm').textContent = (r.trip==='round'? (r.km*2).toFixed(1):r.km.toFixed(1)) + ' km';
+  $('invTrip').textContent = r.trip==='round' ? (r.discount?`Khứ hồi (giảm ${Math.round(r.discPct*100)}%)`:'Khứ hồi (2x)') : '1 chiều';
+  $('invDate').textContent = new Date(r.date).toLocaleString('vi-VN');
 
-    // --- 3. STATE MANAGEMENT ---
-    let currentVehicle = 'bike';
-    let tripType = 'oneway'; // 'oneway' or 'round'
-    let currentDistanceKm = 0;
-    let currentDurationMin = 0;
-    let waitHours = 0;
-    let pickupCoords = [10.7769, 106.7009]; // Default Ho Chi Minh City Center
-    let destCoords = null;
+  const rr = RATES[r.vehicle];
+  let rows = `<tr><td>Giá mở cửa (2km đầu)</td><td>${fmt(rr.open)} ₫</td></tr>`;
+  if(r.km>2) rows += `<tr><td>Km 3–20</td><td>${fmt((Math.min(r.km,20)-2)*rr.t1)} ₫</td></tr>`;
+  if(r.km>20) rows += `<tr><td>Từ km 21</td><td>${fmt((r.km-20)*rr.t2)} ₫</td></tr>`;
+  if(r.waitMin>0) rows += `<tr><td>Phí chờ (${r.waitMin} phút)</td><td>${fmt(r.waitMin/60*rr.wait)} ₫</td></tr>`;
+  if(r.trip==='round'){
+    rows += `<tr><td>1 chiều × 2</td><td>${fmt(r.base2x)} ₫</td></tr>`;
+    if(r.discount) rows += `<tr><td>Giảm giá khứ hồi (-${Math.round(r.discPct*100)}%)</td><td>-${fmt(r.base2x-r.total)} ₫</td></tr>`;
+  }
+  $('invTable').innerHTML = rows;
+  $('invTotal').textContent = fmt(r.total)+' ₫';
+  $('invSeal').textContent = genSeal(r.id);
+  $('overlay').classList.add('open');
+}
+$('invClose').onclick = ()=> $('overlay').classList.remove('open');
+$('overlay').onclick = e=>{ if(e.target.id==='overlay') $('overlay').classList.remove('open'); };
 
-    let map, pickupMarker, destMarker, routePolyline;
+/* Toàn màn hình hoá đơn */
+$('invFullscreen').onclick = async ()=>{
+  const box = $('invoiceBox');
+  if(!document.fullscreenElement){
+    try{ await box.requestFullscreen(); box.classList.add('fs'); $('invFullscreen').textContent = '🔙 Thoát toàn màn hình'; }
+    catch(e){ toast("Thiết bị không hỗ trợ toàn màn hình"); }
+  } else {
+    await document.exitFullscreen();
+  }
+};
+document.addEventListener('fullscreenchange', ()=>{
+  if(!document.fullscreenElement){ $('invoiceBox').classList.remove('fs'); $('invFullscreen').textContent = '🔍 Mở rộng toàn màn hình'; }
+});
 
-    // --- 4. MAP INITIALIZATION & LEAFLET SETUP ---
-    window.onload = function() {
-      lucide.createIcons();
-      initMap();
-      getCurrentLocation();
-      setupAutocomplete('pickupInput', 'pickupSuggestions', true);
-      setupAutocomplete('destInput', 'destSuggestions', false);
-    };
+/* In nhanh */
+$('invPrint').onclick = ()=> window.print();
 
-    function initMap() {
-      map = L.map('map').setView(pickupCoords, 13);
-      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-        maxZoom: 19,
-        attribution: '© OpenStreetMap'
-      }).addTo(map);
+/* Xuất PDF thật (jsPDF + html2canvas) */
+$('invPDF').onclick = async ()=>{
+  toast("Đang tạo PDF...");
+  const canvas = await html2canvas($('invoiceBox'), {scale:2, backgroundColor:'#ffffff'});
+  const { jsPDF } = window.jspdf;
+  const pdf = new jsPDF('p','pt',[canvas.width/2, canvas.height/2]);
+  pdf.addImage(canvas.toDataURL('image/png'), 'PNG', 0, 0, canvas.width/2, canvas.height/2);
+  pdf.save(`HoaDon_${$('invId').textContent.replace('#','')}.pdf`);
+  toast("Đã tải file PDF");
+};
 
-      // Default pickup marker
-      pickupMarker = L.marker(pickupCoords, { draggable: true }).addTo(map)
-        .bindPopup("Điểm xuất phát")
-        .openPopup();
+/* Xuất ảnh chất lượng cao */
+$('invImg').onclick = async ()=>{
+  toast("Đang tạo ảnh...");
+  const canvas = await html2canvas($('invoiceBox'), {scale:3, backgroundColor:'#ffffff'});
+  const a = document.createElement('a');
+  a.download = `HoaDon_${$('invId').textContent.replace('#','')}.png`;
+  a.href = canvas.toDataURL('image/png');
+  a.click();
+  toast("Đã tải ảnh hoá đơn");
+};
 
-      pickupMarker.on('dragend', function(e) {
-        let latlng = e.target.getLatLng();
-        pickupCoords = [latlng.lat, latlng.lng];
-        reverseGeocode(latlng.lat, latlng.lng, 'pickupInput');
-        updateRoute();
-      });
+/* Xuất Trang tính (Excel .xlsx thật, dùng SheetJS) */
+$('invXLSX').onclick = ()=>{
+  const rows = [
+    ["PhuongSM - Hoá đơn đặt xe"],
+    ["Mã hoá đơn", $('invId').textContent],
+    ["Điểm đón", $('invFrom').textContent],
+    ["Điểm đến", $('invTo').textContent],
+    ["Phương tiện", $('invVehicle').textContent],
+    ["Quãng đường", $('invKm').textContent],
+    ["Chiều đi", $('invTrip').textContent],
+    ["Thời gian", $('invDate').textContent],
+    [],
+    ["Hạng mục", "Số tiền (₫)"]
+  ];
+  $('invTable').querySelectorAll('tr').forEach(tr=>{
+    const tds = tr.querySelectorAll('td');
+    rows.push([tds[0].textContent, tds[1].textContent.replace(/[^\d-]/g,'')]);
+  });
+  rows.push([]); rows.push(["Tổng thanh toán", $('invTotal').textContent.replace(/[^\d]/g,'')]);
+  const ws = XLSX.utils.aoa_to_sheet(rows);
+  ws['!cols'] = [{wch:28},{wch:18}];
+  const wb = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb, ws, "HoaDon");
+  XLSX.writeFile(wb, `HoaDon_${$('invId').textContent.replace('#','')}.xlsx`);
+  toast("Đã tải file trang tính");
+};
 
-      map.on('click', function(e) {
-        if (!destCoords) {
-          destCoords = [e.latlng.lat, e.latlng.lng];
-          destMarker = L.marker(destCoords, { draggable: true }).addTo(map).bindPopup("Điểm đến");
-          destMarker.on('dragend', function(evt) {
-            let l = evt.target.getLatLng();
-            destCoords = [l.lat, l.lng];
-            reverseGeocode(l.lat, l.lng, 'destInput');
-            updateRoute();
-          });
-        } else {
-          destCoords = [e.latlng.lat, e.latlng.lng];
-          destMarker.setLatLng(destCoords);
-        }
-        reverseGeocode(e.latlng.lat, e.latlng.lng, 'destInput');
-        updateRoute();
-      });
-    }
+/* Xuất Docx (Word có thể mở trực tiếp) */
+$('invDOCX').onclick = ()=>{
+  const html = `
+  <html xmlns:o='urn:schemas-microsoft-com:office:office' xmlns:w='urn:schemas-microsoft-com:office:word' xmlns='http://www.w3.org/TR/REC-html40'>
+  <head><meta charset="utf-8"><title>Hoá đơn</title></head>
+  <body style="font-family:Arial;padding:20px;">
+    <h2>PhuongSM — Hoá đơn đặt xe</h2>
+    <p><b>Mã hoá đơn:</b> ${$('invId').textContent}</p>
+    <p><b>Điểm đón:</b> ${$('invFrom').textContent}<br><b>Điểm đến:</b> ${$('invTo').textContent}</p>
+    <p><b>Phương tiện:</b> ${$('invVehicle').textContent} &nbsp; <b>Quãng đường:</b> ${$('invKm').textContent}</p>
+    <p><b>Chiều đi:</b> ${$('invTrip').textContent} &nbsp; <b>Thời gian:</b> ${$('invDate').textContent}</p>
+    <table border="1" cellpadding="6" style="border-collapse:collapse;width:100%;">
+      ${$('invTable').innerHTML}
+    </table>
+    <h3>Tổng thanh toán: ${$('invTotal').textContent}</h3>
+    <p style="font-size:11px;color:#888;">Mã chống giả mạo: ${$('invSeal').textContent}</p>
+  </body></html>`;
+  const blob = new Blob(['\ufeff', html], {type:'application/msword'});
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = `HoaDon_${$('invId').textContent.replace('#','')}.doc`;
+  a.click();
+  toast("Đã tải file Word (.doc)");
+};
 
-    function resetMapView() {
-      if (pickupMarker && destMarker) {
-        let group = new L.featureGroup([pickupMarker, destMarker]);
-        map.fitBounds(group.getBounds().pad(0.2));
-      } else {
-        map.setView(pickupCoords, 14);
-      }
-    }
+$('invShare').onclick = ()=> shareLink("Hoá đơn PhuongSM", `${$('invId').textContent} — Tổng: ${$('invTotal').textContent}`);
 
-    // --- 5. GEOLOCATION & SEARCH AUTOCOMPLETE ---
-    function getCurrentLocation() {
-      if (navigator.geolocation) {
-        navigator.geolocation.getCurrentPosition(
-          (pos) => {
-            pickupCoords = [pos.coords.latitude, pos.coords.longitude];
-            map.setView(pickupCoords, 15);
-            if (pickupMarker) pickupMarker.setLatLng(pickupCoords);
-            reverseGeocode(pickupCoords[0], pickupCoords[1], 'pickupInput');
-            if (destCoords) updateRoute();
-          },
-          (err) => {
-            console.warn("Geolocation denied or error, using default location.");
-            reverseGeocode(pickupCoords[0], pickupCoords[1], 'pickupInput');
-          }
-        );
-      } else {
-        reverseGeocode(pickupCoords[0], pickupCoords[1], 'pickupInput');
-      }
-    }
-
-    function reverseGeocode(lat, lng, inputId) {
-      fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}`)
-        .then(res => res.json())
-        .then(data => {
-          if (data && data.display_name) {
-            document.getElementById(inputId).value = data.display_name.split(',')[0] + ', ' + (data.address.suburb || data.address.city || '');
-          }
-        }).catch(() => {});
-    }
-
-    function setupAutocomplete(inputId, suggId, isPickup) {
-      const input = document.getElementById(inputId);
-      const suggestions = document.getElementById(suggId);
-      let timeout = null;
-
-      input.addEventListener('input', function() {
-        clearTimeout(timeout);
-        const query = input.value.trim();
-        if (query.length < 3) {
-          suggestions.classList.add('hidden');
-          return;
-        }
-
-        timeout = setTimeout(() => {
-          fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(query)}&countrycodes=vn&limit=5`)
-            .then(res => res.json())
-            .then(data => {
-              suggestions.innerHTML = '';
-              if (data.length === 0) {
-                suggestions.classList.add('hidden');
-                return;
-              }
-              data.forEach(item => {
-                let div = document.createElement('div');
-                div.className = 'p-2 hover:bg-slate-100 cursor-pointer text-xs border-b border-slate-100 last:border-0';
-                div.innerText = item.display_name;
-                div.onclick = function() {
-                  input.value = item.display_name;
-                  suggestions.classList.add('hidden');
-                  let lat = parseFloat(item.lat);
-                  let lon = parseFloat(item.lon);
-
-                  if (isPickup) {
-                    pickupCoords = [lat, lon];
-                    pickupMarker.setLatLng(pickupCoords);
-                  } else {
-                    destCoords = [lat, lon];
-                    if (!destMarker) {
-                      destMarker = L.marker(destCoords, { draggable: true }).addTo(map).bindPopup("Điểm đến");
-                      destMarker.on('dragend', function(evt) {
-                        let l = evt.target.getLatLng();
-                        destCoords = [l.lat, l.lng];
-                        reverseGeocode(l.lat, l.lng, 'destInput');
-                        updateRoute();
-                      });
-                    } else {
-                      destMarker.setLatLng(destCoords);
-                    }
-                  }
-                  resetMapView();
-                  updateRoute();
-                };
-                suggestions.appendChild(div);
-              });
-              suggestions.classList.remove('hidden');
-            });
-        }, 300);
-      });
-    }
-
-    // --- 6. OSRM ROUTING REAL CALCULATIONS ---
-    function updateRoute() {
-      if (!pickupCoords || !destCoords) return;
-
-      const url = `https://router.project-osrm.org/route/v1/driving/${pickupCoords[1]},${pickupCoords[0]};${destCoords[1]},${destCoords[0]}?overview=full&geometries=geojson`;
-
-      fetch(url)
-        .then(res => res.json())
-        .then(data => {
-          if (data.routes && data.routes.length > 0) {
-            const route = data.routes[0];
-            currentDistanceKm = route.distance / 1000; // Meters to KM
-            currentDurationMin = Math.round(route.duration / 60); // Seconds to Minutes
-
-            // Draw route on map
-            if (routePolyline) map.removeLayer(routePolyline);
-            const routeCoords = route.geometry.coordinates.map(c => [c[1], c[0]]);
-            routePolyline = L.polyline(routeCoords, { color: '#2563eb', weight: 5, opacity: 0.8 }).addTo(map);
-
-            resetMapView();
-            calculatePrice();
-          }
-        })
-        .catch(err => {
-          console.error("OSRM Routing error:", err);
-        });
-    }
-
-    // --- 7. TRIP TYPE & VEHICLE SELECTION ---
-    function setTripType(type) {
-      tripType = type;
-      const btnOne = document.getElementById('btnOneWay');
-      const btnRound = document.getElementById('btnRoundTrip');
-      const discountLabelText = document.getElementById('discountLabelText');
-      const discountSubText = document.getElementById('discountSubText');
-
-      if (type === 'oneway') {
-        btnOne.className = "py-2 text-sm font-semibold rounded-md transition shadow-sm bg-white text-blue-600";
-        btnRound.className = "py-2 text-sm font-semibold rounded-md text-slate-600 hover:text-slate-900 transition";
-        discountLabelText.innerText = "2x Khứ hồi (Không khả dụng)";
-        discountSubText.innerText = "Chế độ áp dụng cho chuyến khứ hồi";
-        document.getElementById('discountToggle').disabled = true;
-      } else {
-        btnRound.className = "py-2 text-sm font-semibold rounded-md transition shadow-sm bg-white text-blue-600";
-        btnOne.className = "py-2 text-sm font-semibold rounded-md text-slate-600 hover:text-slate-900 transition";
-        document.getElementById('discountToggle').disabled = false;
-        updateDiscountToggleText();
-      }
-      calculatePrice();
-    }
-
-    function updateDiscountToggleText() {
-      const isChecked = document.getElementById('discountToggle').checked;
-      const discountLabelText = document.getElementById('discountLabelText');
-      const discountSubText = document.getElementById('discountSubText');
-
-      if (isChecked) {
-        discountLabelText.innerText = "2x Khứ hồi giảm";
-        discountSubText.innerText = "Tính giảm giá theo bảng quy định";
-      } else {
-        discountLabelText.innerText = "2x Khứ hồi";
-        discountSubText.innerText = "Tính gấp đôi giá 1 chiều";
-      }
-    }
-
-    function selectVehicle(v) {
-      currentVehicle = v;
-      document.querySelectorAll('.vehicle-btn').forEach(btn => {
-        btn.className = "vehicle-btn border-2 border-slate-200 p-2.5 rounded-xl flex items-center space-x-3 transition";
-      });
-      const activeBtn = document.getElementById(`v-${v}`);
-      if (activeBtn) {
-        activeBtn.className = "vehicle-btn border-2 border-blue-600 bg-blue-50/50 p-2.5 rounded-xl flex items-center space-x-3 transition";
-      }
-      calculatePrice();
-    }
-
-    function updateWaitTime(val) {
-      waitHours = parseFloat(val);
-      document.getElementById('waitTimeDisplay').innerText = `${waitHours} giờ`;
-      calculatePrice();
-    }
-
-    // --- 8. EXACT PRICING CALCULATION LOGIC ---
-    function calculatePrice() {
-      const p = PRICING[currentVehicle];
-      let oneWayPrice = 0;
-      let km = currentDistanceKm;
-
-      if (km > 0) {
-        if (km <= 2) {
-          oneWayPrice = p.base;
-        } else if (km <= 20) {
-          oneWayPrice = p.base + (km - 2) * p.p3_20;
-        } else {
-          oneWayPrice = p.base + (18 * p.p3_20) + (km - 20) * p.p21;
-        }
-      }
-
-      // Waiting fee
-      let waitFee = waitHours * p.wait;
-
-      let discountPercent = 0;
-      let totalAmount = 0;
-      const isDiscountActive = document.getElementById('discountToggle').checked;
-      
-      updateDiscountToggleText();
-
-      if (tripType === 'oneway') {
-        totalAmount = oneWayPrice + waitFee;
-        document.getElementById('discountRow').classList.add('hidden');
-      } else {
-        // Round trip selected
-        let roundPriceBase = oneWayPrice * 2;
-
-        if (isDiscountActive) {
-          if (km < 20) discountPercent = 10;
-          else if (km <= 50) discountPercent = 15;
-          else discountPercent = 20;
-
-          let discountAmount = roundPriceBase * (discountPercent / 100);
-          totalAmount = (roundPriceBase - discountAmount) + waitFee;
-
-          document.getElementById('discountRow').classList.remove('hidden');
-          document.getElementById('summaryDiscountRate').innerText = `-${discountPercent}% (-${formatVND(discountAmount)})`;
-        } else {
-          totalAmount = roundPriceBase + waitFee;
-          document.getElementById('discountRow').classList.add('hidden');
-        }
-      }
-
-      // Update Summary UI
-      document.getElementById('summaryDistance').innerText = `${km.toFixed(1)} km`;
-      document.getElementById('summaryDuration').innerText = `${currentDurationMin} phút`;
-      document.getElementById('summaryWaitHours').innerText = waitHours;
-      document.getElementById('summaryWaitFee').innerText = formatVND(waitFee);
-      document.getElementById('summaryTotalPrice').innerText = formatVND(Math.round(totalAmount));
-    }
-
-    function formatVND(amount) {
-      return new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(amount);
-    }
-
-    // --- 9. INVOICE GENERATION & MODAL ---
-    function generateInvoiceModal() {
-      const p = PRICING[currentVehicle];
-      const isDiscountActive = document.getElementById('discountToggle').checked;
-      let km = currentDistanceKm;
-      
-      let oneWayPrice = 0;
-      if (km <= 2) oneWayPrice = p.base;
-      else if (km <= 20) oneWayPrice = p.base + (km - 2) * p.p3_20;
-      else oneWayPrice = p.base + (18 * p.p3_20) + (km - 20) * p.p21;
-
-      let waitFee = waitHours * p.wait;
-      let discountAmount = 0;
-      let totalAmount = 0;
-
-      if (tripType === 'oneway') {
-        totalAmount = oneWayPrice + waitFee;
-      } else {
-        let baseRound = oneWayPrice * 2;
-        if (isDiscountActive) {
-          let discRate = (km < 20) ? 0.10 : (km <= 50 ? 0.15 : 0.20);
-          discountAmount = baseRound * discRate;
-          totalAmount = (baseRound - discountAmount) + waitFee;
-        } else {
-          totalAmount = baseRound + waitFee;
-        }
-      }
-
-      // Populate Invoice Fields
-      document.getElementById('invCode').innerText = 'GME-' + Math.floor(100000 + Math.random() * 900000);
-      document.getElementById('invDate').innerText = 'Ngày: ' + new Date().toLocaleDateString('vi-VN');
-      document.getElementById('invPickup').innerText = document.getElementById('pickupInput').value || 'Vị trí hiện tại';
-      document.getElementById('invDest').innerText = document.getElementById('destInput').value || 'Chưa chọn điểm đến';
-      document.getElementById('invVehicle').innerText = p.name;
-      document.getElementById('invTripType').innerText = tripType === 'oneway' ? 'Chuyến 1 chiều' : (isDiscountActive ? 'Khứ hồi (Có giảm giá)' : 'Khứ hồi (Không giảm)');
-      
-      document.getElementById('invDistance').innerText = `${km.toFixed(1)} km`;
-      document.getElementById('invDuration').innerText = `${currentDurationMin} phút`;
-      document.getElementById('invWaitHours').innerText = waitHours;
-      document.getElementById('invWaitFee').innerText = formatVND(waitFee);
-
-      const invDiscRow = document.getElementById('invDiscountRow');
-      if (discountAmount > 0) {
-        invDiscRow.classList.remove('hidden');
-        document.getElementById('invDiscountVal').innerText = `-${formatVND(discountAmount)}`;
-      } else {
-        invDiscRow.classList.add('hidden');
-      }
-
-      document.getElementById('invTotal').innerText = formatVND(Math.round(totalAmount));
-      document.getElementById('invHash').innerText = Math.random().toString(36).substring(2, 8).toUpperCase();
-
-      document.getElementById('invoiceModal').classList.remove('hidden');
-      lucide.createIcons();
-    }
-
-    function closeInvoiceModal() {
-      document.getElementById('invoiceModal').classList.add('hidden');
-    }
-
-    // --- 10. EXPORT FUNCTIONS (PDF, DOCX, EXCEL, IMAGE, PRINT) ---
-    function printInvoice() {
-      window.print();
-    }
-
-    function exportPDF() {
-      const element = document.getElementById('invoicePrintArea');
-      const opt = {
-        margin:       0.5,
-        filename:     `HoaDon_GOMOVE_${Date.now()}.pdf`,
-        image:        { type: 'jpeg', quality: 0.98 },
-        html2canvas:  { scale: 2 },
-        jsPDF:        { unit: 'in', format: 'letter', orientation: 'portrait' }
-      };
-      
-      // Using jspdf & html2canvas
-      html2pdf().set(opt).from(element).save();
-    }
-
-    function exportImage() {
-      const element = document.getElementById('invoicePrintArea');
-      html2canvas(element, { scale: 2 }).then(canvas => {
-        const link = document.createElement('a');
-        link.download = `HoaDon_GOMOVE_${Date.now()}.png`;
-        link.href = canvas.toDataURL('image/png');
-        link.click();
-      });
-    }
-
-    function exportExcel() {
-      const data = [
-        ["HÓA ĐƠN ĐẶT XE - GO-MOVE EXPRESS"],
-        ["Mã Hóa Đơn", document.getElementById('invCode').innerText],
-        ["Ngày Đặt", document.getElementById('invDate').innerText],
-        ["Điểm Đi", document.getElementById('invPickup').innerText],
-        ["Điểm Đến", document.getElementById('invDest').innerText],
-        ["Loại Xe", document.getElementById('invVehicle').innerText],
-        ["Hình Thức", document.getElementById('invTripType').innerText],
-        ["Quãng Đường", document.getElementById('invDistance').innerText],
-        ["Thời Gian Dự Kiến", document.getElementById('invDuration').innerText],
-        ["Phí Chờ", document.getElementById('invWaitFee').innerText],
-        ["Tổng Cộng", document.getElementById('invTotal').innerText]
-      ];
-
-      const ws = XLSX.utils.aoa_to_sheet(data);
-      const wb = XLSX.utils.book_new();
-      XLSX.utils.book_append_sheet(wb, ws, "HoaDon");
-      XLSX.writeFile(wb, `HoaDon_GOMOVE_${Date.now()}.xlsx`);
-    }
-
-    function exportDocx() {
-      const { Document, Packer, Paragraph, TextRun, Table, TableRow, TableCell, WidthType } = docx;
-
-      const doc = new Document({
-        sections: [{
-          properties: {},
-          children: [
-            new Paragraph({
-              children: [
-                new TextRun({ text: "HÓA ĐƠN ĐẶT XE - GO-MOVE EXPRESS", bold: true, size: 28, color: "2563EB" }),
-              ],
-            }),
-            new Paragraph({ text: `Mã HĐ: ${document.getElementById('invCode').innerText}` }),
-            new Paragraph({ text: `Ngày đặt: ${document.getElementById('invDate').innerText}` }),
-            new Paragraph({ text: `Điểm đi: ${document.getElementById('invPickup').innerText}` }),
-            new Paragraph({ text: `Điểm đến: ${document.getElementById('invDest').innerText}` }),
-            new Paragraph({ text: `Loại phương tiện: ${document.getElementById('invVehicle').innerText}` }),
-            new Paragraph({ text: `Quãng đường: ${document.getElementById('invDistance').innerText}` }),
-            new Paragraph({
-              children: [
-                new TextRun({ text: `TỔNG TIỀN: ${document.getElementById('invTotal').innerText}`, bold: true, size: 24, color: "15803D" }),
-              ],
-            }),
-          ],
-        }],
-      });
-
-      Packer.toBlob(doc).then(blob => {
-        const link = document.createElement('a');
-        link.href = URL.createObjectURL(blob);
-        link.download = `HoaDon_GOMOVE_${Date.now()}.docx`;
-        link.click();
-      });
-    }
-
-    // --- 11. FULLSCREEN TOGGLE LOGIC ---
-    function toggleFullScreen() {
-      if (!document.fullscreenElement) {
-        document.documentElement.requestFullscreen();
-      } else {
-        if (document.exitFullscreen) {
-          document.exitFullscreen();
-        }
-      }
-    }
-
-    function toggleModalFullscreen() {
-      const modal = document.getElementById('invoiceModal');
-      modal.classList.toggle('p-0');
-      modal.classList.toggle('p-2');
-    }
-  </script>
+/* ============ Ẩn/hiện toggle QR khi trip đổi -> loyal row ẩn nếu 1 chiều ============ */
+</script>
 </body>
 </html>
